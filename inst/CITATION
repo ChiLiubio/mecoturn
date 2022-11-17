@@ -1,0 +1,11 @@
+citHeader("To cite microeco in publications use:")
+
+citEntry(entry="article",
+         title = "Deciphering microbial turnover among plant compartments",
+         author = personList( as.person("Chi Liu"),
+                              as.person("Xiangzhen Li"),
+                              as.person("Minjie Yao*")),
+         year = "2023",
+         textVersion = "Chi Liu et al. Deciphering microbial turnover among plant compartments. Under Review."
+)
+
