@@ -25,12 +25,21 @@ t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_gro
 \donttest{
 t1$cal_diff()
 }
+
+## ------------------------------------------------
+## Method `taxaturn$plot`
+## ------------------------------------------------
+
+\donttest{
+t1$plot()
+}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-taxaturn-new}{\code{taxaturn$new()}}
 \item \href{#method-taxaturn-cal_diff}{\code{taxaturn$cal_diff()}}
+\item \href{#method-taxaturn-plot}{\code{taxaturn$plot()}}
 \item \href{#method-taxaturn-clone}{\code{taxaturn$clone()}}
 }
 }
@@ -120,7 +129,7 @@ So \code{by_group} has a larger scale than \code{group} parameter in the previou
 such as the data of plant compartments for different plant species (ID). 
 So \code{by_ID} in sample_table should be the smallest unit of sample collection without any repetition in it.}
 
-\item{\code{...}}{parameters (except measure) passed to \code{plot_alpha} function of \code{\link{trans_alpha}} class.}
+\item{\code{...}}{parameters passed to \code{trans_diff$new}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -131,6 +140,71 @@ So \code{by_ID} in sample_table should be the smallest unit of sample collection
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{\donttest{
 t1$cal_diff()
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-taxaturn-plot"></a>}}
+\if{latex}{\out{\hypertarget{method-taxaturn-plot}{}}}
+\subsection{Method \code{plot()}}{
+Plot the line chart.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{taxaturn$plot(
+  number = 1:5,
+  delete_prefix = TRUE,
+  fill_color = c("grey70", "grey90"),
+  plot_SE = TRUE,
+  position = position_dodge(0.1),
+  errorbar_size = 1,
+  errorbar_width = 0.1,
+  point_size = 3,
+  point_alpha = 0.8,
+  line_size = 0.8,
+  line_alpha = 0.8,
+  line_type = 1
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{number}}{default 1:5; number of taxa in the plot.}
+
+\item{\code{delete_prefix}}{default TRUE; whether delete the prefix in the taxa names.}
+
+\item{\code{fill_color}}{default c("grey70", "grey90"); the colors used to fill different plot area.}
+
+\item{\code{plot_SE}}{default TRUE; TRUE: plot the errorbar with mean±se; FALSE: plot the errorbar with mean±sd.}
+
+\item{\code{position}}{default position_dodge(0.1); Position adjustment, either as a string (such as "identity"), or the result of a call to a position adjustment function.}
+
+\item{\code{errorbar_size}}{default 1; errorbar size.}
+
+\item{\code{errorbar_width}}{default 0.1; errorbar width.}
+
+\item{\code{point_size}}{default 3; point size for taxa.}
+
+\item{\code{point_alpha}}{default 0.8; point transparency.}
+
+\item{\code{line_size}}{default 0.8; line size.}
+
+\item{\code{line_alpha}}{default 0.8; line transparency.}
+
+\item{\code{line_type}}{default 1; an integer; line type.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+ggplot2 plot.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\donttest{
+t1$plot()
 }
 }
 \if{html}{\out{</div>}}

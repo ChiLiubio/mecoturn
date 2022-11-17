@@ -120,7 +120,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' @param by_ID default NULL; a column of sample_table used to perform paired t test or paired wilcox test for the paired data,
 		#'   such as the data of plant compartments for different plant species (ID). 
 		#'   So \code{by_ID} in sample_table should be the smallest unit of sample collection without any repetition in it.
-		#' @param ... parameters (except measure) passed to \code{plot_alpha} function of \code{\link{trans_alpha}} class.
+		#' @param ... parameters passed to \code{trans_diff$new}.
 		#' @return \code{res_change}, updated in the object.
 		#' @examples
 		#' \donttest{
@@ -133,7 +133,6 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			taxa_level <- self$taxa_level
 			tmp_dataset <- self$tmp_dataset
 			res_table <- data.frame()
-
 			method <- match.arg(method, c("wilcox", "t.test"))
 			
 			for(i in seq_len(length(ordered_group) - 1)){
@@ -167,6 +166,80 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			message('Raw differential test results are stored in object$res_diff_raw ...')
 			self$res_change <- res_change
 			message('Differential test results have been added in object$res_change ...')
+		},
+		#' @description
+		#' Plot the line chart.
+		#'
+		#' @param number default 1:5; number of taxa in the plot.
+		#' @param delete_prefix default TRUE; whether delete the prefix in the taxa names.
+		#' @param fill_color default c("grey70", "grey90"); the colors used to fill different plot area.
+		#' @param plot_SE default TRUE; TRUE: plot the errorbar with mean±se; FALSE: plot the errorbar with mean±sd.
+		#' @param position default position_dodge(0.1); Position adjustment, either as a string (such as "identity"), or the result of a call to a position adjustment function.
+		#' @param errorbar_size default 1; errorbar size.
+		#' @param errorbar_width default 0.1; errorbar width.
+		#' @param point_size default 3; point size for taxa.
+		#' @param point_alpha default 0.8; point transparency.
+		#' @param line_size default 0.8; line size.
+		#' @param line_alpha default 0.8; line transparency.
+		#' @param line_type default 1; an integer; line type.
+		#' @return ggplot2 plot. 
+		#' @examples
+		#' \donttest{
+		#' t1$plot()
+		#' }
+		plot = function(
+			number = 1:5,
+			delete_prefix = TRUE,
+			fill_color = c("grey70", "grey90"),
+			plot_SE = TRUE,
+			position = position_dodge(0.1),
+			errorbar_size = 1,
+			errorbar_width = 0.1,
+			point_size = 3,
+			point_alpha = 0.8,
+			line_size = 0.8,
+			line_alpha = 0.8,
+			line_type = 1
+			){
+			theme_set(theme_bw())
+
+			plot_data <- self$res_abund
+			group <- self$group
+
+			ordered_group <- self$ordered_group
+			plot_data[, group] %<>% factor(levels = ordered_group)
+			if(delete_prefix){
+				plot_data$Taxa %<>% gsub(".*\\|", "", .)
+			}
+			# sort abudance of taxa for the selection
+			plot_data$total_abund <- plot_data$N * plot_data$Mean
+			taxa_abund <- tapply(plot_data$total_abund, plot_data$Taxa, sum) %>% sort(decreasing = TRUE)
+			use_taxa_names <- names(taxa_abund[number])
+			plot_data %<>% .[.$Taxa %in% use_taxa_names, ]
+			plot_data$Taxa %<>% factor(levels = use_taxa_names)
+			
+			p <- ggplot(plot_data, aes_string(x = "Type", y = "Mean", group = "Taxa"))
+			if(("SE" %in% colnames(plot_data)) & plot_SE){
+				p <- p + geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = errorbar_width, position = position, size = errorbar_size)
+			}else{
+				if(("SD" %in% colnames(plot_data)) & plot_SE){
+					p <- p + geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD), width = errorbar_width, position = position, size = errorbar_size)
+				}
+			}
+			p <- p + facet_grid(Taxa ~ ., drop = TRUE, scale = "free", space = "fixed")
+			for(i in seq_len(length(ordered_group) - 1)){
+				if(i %% 2 == 1){
+					p <- p + geom_rect(aes_string(xmin = i, xmax = (i + 1)), ymin = -Inf, ymax = Inf, alpha = 0.2, fill = fill_color[1])
+				}else{
+					p <- p + geom_rect(aes_string(xmin = i, xmax = (i + 1)), ymin = -Inf, ymax = Inf, alpha = 0.2, fill = fill_color[2])
+				}
+			}
+			p <- p + geom_point(size = point_size, alpha = point_alpha, position = position) + 
+				geom_line(linewidth = line_size, alpha = line_alpha, linetype = line_type, position = position) + 
+				theme(strip.background = element_rect(fill = "grey95"), strip.text.y = element_text(angle = 360)) +
+				ylab("Relative abundance") + xlab("")
+
+			p
 		}
 	),
 	private = list(
