@@ -15,7 +15,7 @@ Analyze the 'turnover' of taxa along a defined gradient.
 \donttest{
 data(wheat_16S)
 t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"))
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_group = "Plant_ID")
+t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
 }
 
 ## ------------------------------------------------
@@ -53,8 +53,8 @@ t1$plot()
   taxa_level = "Phylum",
   group,
   ordered_group,
-  by_group = NULL,
-  by_group_final = NULL
+  by_ID = NULL,
+  by_group = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -71,14 +71,17 @@ the function will use the features in input \code{microtable$otu_table} automati
 
 \item{\code{ordered_group}}{a vector representing the elements of \code{group} parameter.}
 
-\item{\code{by_group}}{default NULL; a colname of sample_table of input dataset used to for the analysis for each element in the \code{by_group} to get the change result.
-If \code{by_group} is not the smallest unit and has repetitions in the elements, mean and sd will be calculated.}
+\item{\code{by_ID}}{default NULL; a column of sample_table used to obtain the consistent change along provided elements.
+So by_ID can be ID (unique repetition) or even group (with repetitions). 
+If it denotes unique ID, consistent change can be performed across each ID.
+It is also especially useful for the paired wilcox test (or paired t test) in the following analysis.
+If it does not represent unique ID, the mean of each group will be calculated, and consistent change across groups will be obtained.}
 
-\item{\code{by_group_final}}{default NULL; NULL or other colname of sample_table of input dataset; 
-   NULL represents the output is the consistent change across all the elements in \code{by_group};
-a colname of sample_table of input dataset means the consistent change is obtained by those groups instead of all the elements in \code{by_group};
-Note that the by_group_final can be same with by_group, in which the final change is the result of each element in \code{by_group};'
-This parameter is applied only when \code{by_group} is not \code{NULL}.}
+\item{\code{by_group}}{default NULL; NULL or other colname of sample_table of input dataset used to show the result for different groups; 
+   NULL represents the output is the default consistent change across all the elements in \code{by_ID};
+a colname of sample_table of input dataset means the consistent change is obtained for each group instead of all the elements in \code{by_group};
+Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
+So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.}
 }
 \if{html}{\out{</div>}}
 }
@@ -90,7 +93,7 @@ This parameter is applied only when \code{by_group} is not \code{NULL}.}
 \preformatted{\donttest{
 data(wheat_16S)
 t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"))
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_group = "Plant_ID")
+t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
 }
 }
 \if{html}{\out{</div>}}
@@ -104,12 +107,7 @@ t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_gro
 \subsection{Method \code{cal_diff()}}{
 Differential test of taxonomic abudance across groups
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{taxaturn$cal_diff(
-  method = c("wilcox", "t.test")[1],
-  by_group = NULL,
-  by_ID = NULL,
-  ...
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{taxaturn$cal_diff(method = c("wilcox", "t.test")[1], ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -120,14 +118,6 @@ Differential test of taxonomic abudance across groups
   \item{\strong{'wilcox'}}{Wilcoxon Rank Sum and Signed Rank Tests for all paired groups }
   \item{\strong{'t.test'}}{Student's t-Test for all paired groups}
 }}
-
-\item{\code{by_group}}{default NULL; a column of sample_table used to perform the differential test 
-among groups (\code{group} parameter) for each group (\code{by_group} parameter). 
-So \code{by_group} has a larger scale than \code{group} parameter in the previous function.}
-
-\item{\code{by_ID}}{default NULL; a column of sample_table used to perform paired t test or paired wilcox test for the paired data,
-such as the data of plant compartments for different plant species (ID). 
-So \code{by_ID} in sample_table should be the smallest unit of sample collection without any repetition in it.}
 
 \item{\code{...}}{parameters passed to \code{trans_diff$new}.}
 }

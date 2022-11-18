@@ -12,21 +12,24 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' 	  the function will use the features in input \code{microtable$otu_table} automatically.
 		#' @param group sample group used for the selection; a colname of input \code{microtable$sample_table}.
 		#' @param ordered_group a vector representing the elements of \code{group} parameter.
-		#' @param by_group default NULL; a colname of sample_table of input dataset used to for the analysis for each element in the \code{by_group} to get the change result.
-		#' 	  If \code{by_group} is not the smallest unit and has repetitions in the elements, mean and sd will be calculated.
-		#' @param by_group_final default NULL; NULL or other colname of sample_table of input dataset; 
-		#' 	 NULL represents the output is the consistent change across all the elements in \code{by_group};
-		#'   a colname of sample_table of input dataset means the consistent change is obtained by those groups instead of all the elements in \code{by_group};
-		#'   Note that the by_group_final can be same with by_group, in which the final change is the result of each element in \code{by_group};'
-		#'   This parameter is applied only when \code{by_group} is not \code{NULL}.
+		#' @param by_ID default NULL; a column of sample_table used to obtain the consistent change along provided elements.
+		#'   So by_ID can be ID (unique repetition) or even group (with repetitions). 
+		#'   If it denotes unique ID, consistent change can be performed across each ID.
+		#'   It is also especially useful for the paired wilcox test (or paired t test) in the following analysis.
+		#'   If it does not represent unique ID, the mean of each group will be calculated, and consistent change across groups will be obtained.
+		#' @param by_group default NULL; NULL or other colname of sample_table of input dataset used to show the result for different groups; 
+		#' 	 NULL represents the output is the default consistent change across all the elements in \code{by_ID};
+		#'   a colname of sample_table of input dataset means the consistent change is obtained for each group instead of all the elements in \code{by_group};
+		#'   Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
+		#'   So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.
 		#' @return \code{res_change} and \code{res_abund}.
 		#' @examples
 		#' \donttest{
 		#' data(wheat_16S)
 		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"))
-		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_group = "Plant_ID")
+		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
 		#' }
-		initialize = function(dataset, taxa_level = "Phylum", group, ordered_group, by_group = NULL, by_group_final = NULL){
+		initialize = function(dataset, taxa_level = "Phylum", group, ordered_group, by_ID = NULL, by_group = NULL){
 			tmp_dataset <- clone(dataset)
 			# first check groups
 			if(!group %in% colnames(tmp_dataset$sample_table)){
@@ -35,14 +38,14 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			if(!all(ordered_group %in% tmp_dataset$sample_table[, group])){
 				stop("Part of elements in ordered_group are not found in sample_table[, ", group, "]!")
 			}
+			if(!is.null(by_ID)){
+				if(!by_ID %in% colnames(tmp_dataset$sample_table)){
+					stop("Provided by_ID parameter is not the colname of sample_table!")
+				}
+			}
 			if(!is.null(by_group)){
 				if(!by_group %in% colnames(tmp_dataset$sample_table)){
 					stop("Provided by_group parameter is not the colname of sample_table!")
-				}
-				if(!is.null(by_group_final)){
-					if(!by_group_final %in% colnames(tmp_dataset$sample_table)){
-						stop("Provided by_group_final parameter is not the colname of sample_table!")
-					}
 				}
 			}
 			# generate abudance table
@@ -60,34 +63,46 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			abund_table <- tmp_dataset$taxa_abund[[taxa_level]]
 			abund_table %<>% {.[!grepl("__$|uncultured$|Incertae..edis$|_sp$", rownames(.), ignore.case = TRUE), ]}
 
-			# all the abudance
-			res_abund <- private$abund_change(abund_table = abund_table, sampleinfo = tmp_dataset$sample_table, group = group, by_group = by_group)
+			# transform the abundance along by_ID or across by_group
+			if(is.null(by_ID)){
+				res_abund <- private$abund_change(abund_table = abund_table, sampleinfo = tmp_dataset$sample_table, group = group, by_group = by_group)
+			}else{
+				res_abund <- private$abund_change(abund_table = abund_table, sampleinfo = tmp_dataset$sample_table, group = group, by_group = by_ID)
+			}
 			res_change <- data.frame(Taxa = unique(res_abund$Taxa))
 			res_change$Direction <- paste0(ordered_group, collapse = " -> ")
-			if(is.null(by_group)){
-				res_change$Change <- private$chang_func(abund_table = res_abund, group = group, ordered_group = ordered_group)
-			}else{
-				if(is.null(by_group_final)){
-					tmp <- data.frame(Taxa = unique(res_abund$Taxa))
+			
+			if(is.null(by_ID)){
+				if(is.null(by_group)){
+					res_change$Change <- private$chang_func(abund_table = res_abund, group = group, ordered_group = ordered_group)
+				}else{
 					for(i in unique(res_abund[, by_group])){
 						res_abund_bygroup <- res_abund[res_abund[, by_group] == i, ]
+						res_change[, paste0(i, " | Change")] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+					}
+				}
+			}else{
+				if(is.null(by_group)){
+					tmp <- data.frame(Taxa = unique(res_abund$Taxa))
+					for(i in unique(res_abund[, by_ID])){
+						res_abund_bygroup <- res_abund[res_abund[, by_ID] == i, ]
 						tmp[, paste0(i, " | Change")] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
 					}
 					res_change$Change <- apply(tmp[, -1, drop = FALSE], 1, function(x){ifelse(length(unique(x)) == 1, unique(x), "")})
 				}else{
-					if(by_group_final == by_group){
-						for(i in unique(res_abund[, by_group])){
-							res_abund_bygroup <- res_abund[res_abund[, by_group] == i, ]
+					if(by_group == by_ID){
+						for(i in unique(res_abund[, by_ID])){
+							res_abund_bygroup <- res_abund[res_abund[, by_ID] == i, ]
 							res_change[, paste0(i, " | Change")] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
 						}
 					}else{
-						map_table <- unique(tmp_dataset$sample_table[, c(by_group, by_group_final)])
-						rownames(map_table) <- map_table[, by_group]
-						res_abund[, by_group_final] <- map_table[res_abund[, by_group], by_group_final]
-						for(j in unique(res_abund[, by_group_final])){
+						map_table <- unique(tmp_dataset$sample_table[, c(by_ID, by_group)])
+						rownames(map_table) <- map_table[, by_ID]
+						res_abund[, by_group] <- map_table[res_abund[, by_ID], by_group]
+						for(j in unique(res_abund[, by_group])){
 							tmp <- data.frame(Taxa = unique(res_abund$Taxa))
-							for(i in unique(res_abund[res_abund[, by_group_final] == j, by_group])){
-								res_abund_bygroup <- res_abund[res_abund[, by_group] == i, ]
+							for(i in unique(res_abund[res_abund[, by_group] == j, by_ID])){
+								res_abund_bygroup <- res_abund[res_abund[, by_ID] == i, ]
 								tmp[, i] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
 							}
 							res_change[, paste0(j, " | Change")] <- apply(tmp[, -1, drop = FALSE], 1, function(x){ifelse(length(unique(x)) == 1, unique(x), "")})
@@ -103,6 +118,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			self$tmp_dataset <- tmp_dataset
 			self$group <- group
 			self$ordered_group <- ordered_group
+			self$by_ID <- by_ID
 			self$by_group <- by_group
 			self$taxa_level <- taxa_level
 		},
@@ -114,21 +130,17 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'     \item{\strong{'wilcox'}}{Wilcoxon Rank Sum and Signed Rank Tests for all paired groups }
 		#'     \item{\strong{'t.test'}}{Student's t-Test for all paired groups}
 		#'   }
-		#' @param by_group default NULL; a column of sample_table used to perform the differential test 
-		#'   among groups (\code{group} parameter) for each group (\code{by_group} parameter). 
-		#'   So \code{by_group} has a larger scale than \code{group} parameter in the previous function.
-		#' @param by_ID default NULL; a column of sample_table used to perform paired t test or paired wilcox test for the paired data,
-		#'   such as the data of plant compartments for different plant species (ID). 
-		#'   So \code{by_ID} in sample_table should be the smallest unit of sample collection without any repetition in it.
 		#' @param ... parameters passed to \code{trans_diff$new}.
 		#' @return \code{res_change}, updated in the object.
 		#' @examples
 		#' \donttest{
 		#' t1$cal_diff()
 		#' }
-		cal_diff = function(method = c("wilcox", "t.test")[1], by_group = NULL, by_ID = NULL, ...){
+		cal_diff = function(method = c("wilcox", "t.test")[1], ...){
 			ordered_group <- self$ordered_group
 			group <- self$group
+			by_ID <- self$by_ID
+			by_group <- self$by_group
 			res_change <- self$res_change
 			taxa_level <- self$taxa_level
 			tmp_dataset <- self$tmp_dataset
