@@ -182,9 +182,13 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' @description
 		#' Plot the line chart.
 		#'
-		#' @param number default 1:5; number of taxa in the plot.
-		#' @param delete_prefix default TRUE; whether delete the prefix in the taxa names.
+		#' @param select_taxa default NULL; the taxa names used to show in the plot; If provided, the \code{number} parameter will be abandoned.
+		#'   Note that if \code{delete_prefix} is TRUE, the provided select_taxa should be taxa names without long prefix (those before |);
+		#'   if \code{delete_prefix} is FALSE, the select_taxa should be full names same with those in the \code{res_abund} of the object.
+		#' @param number default 1:5; number of taxa in the plot; valid when \code{select_taxa} is NULL; the taxa are selected according to the abudance from high to low.
+		#' @param color_values default \code{RColorBrewer::brewer.pal}(8, "Dark2"); colors palette for the plotting.
 		#' @param fill_color default c("grey70", "grey90"); the colors used to fill different plot area.
+		#' @param delete_prefix default TRUE; whether delete the prefix in the taxa names.
 		#' @param plot_SE default TRUE; TRUE: plot the errorbar with mean±se; FALSE: plot the errorbar with mean±sd.
 		#' @param position default position_dodge(0.1); Position adjustment, either as a string (such as "identity"), or the result of a call to a position adjustment function.
 		#' @param errorbar_size default 1; errorbar size.
@@ -200,9 +204,11 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' t1$plot()
 		#' }
 		plot = function(
+			select_taxa = NULL,
 			number = 1:5,
-			delete_prefix = TRUE,
+			color_values = RColorBrewer::brewer.pal(8, "Dark2"),
 			fill_color = c("grey70", "grey90"),
+			delete_prefix = TRUE,
 			plot_SE = TRUE,
 			position = position_dodge(0.1),
 			errorbar_size = 1,
@@ -213,8 +219,9 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			line_alpha = 0.8,
 			line_type = 1
 			){
-			theme_set(theme_bw())
-
+			by_ID <- self$by_ID
+			by_group <- self$by_group
+			
 			plot_data <- self$res_abund
 			group <- self$group
 
@@ -223,14 +230,26 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			if(delete_prefix){
 				plot_data$Taxa %<>% gsub(".*\\|", "", .)
 			}
-			# sort abudance of taxa for the selection
-			plot_data$total_abund <- plot_data$N * plot_data$Mean
-			taxa_abund <- tapply(plot_data$total_abund, plot_data$Taxa, sum) %>% sort(decreasing = TRUE)
-			use_taxa_names <- names(taxa_abund[number])
+			if(is.null(select_taxa)){
+				# sort abudance of taxa for the selection
+				plot_data$total_abund <- plot_data$N * plot_data$Mean
+				taxa_abund <- tapply(plot_data$total_abund, plot_data$Taxa, sum) %>% sort(decreasing = TRUE)
+				use_taxa_names <- names(taxa_abund[number])
+			}else{
+				use_taxa_names <- select_taxa
+			}
 			plot_data %<>% .[.$Taxa %in% use_taxa_names, ]
 			plot_data$Taxa %<>% factor(levels = use_taxa_names)
 			
-			p <- ggplot(plot_data, aes_string(x = "Type", y = "Mean", group = "Taxa"))
+			if(is.null(by_ID)){
+				if(is.null(by_group)){
+					p <- ggplot(plot_data, aes_string(x = group, y = "Mean", group = "Taxa"))
+				}else{
+					p <- ggplot(plot_data, aes_string(x = group, y = "Mean", group = by_group, color = by_group))
+				}
+			}else{
+				p <- ggplot(plot_data, aes_string(x = group, y = "Mean", group = by_ID, color = by_group))
+			}
 			if(("SE" %in% colnames(plot_data)) & plot_SE){
 				p <- p + geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = errorbar_width, position = position, size = errorbar_size)
 			}else{
@@ -238,7 +257,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 					p <- p + geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD), width = errorbar_width, position = position, size = errorbar_size)
 				}
 			}
-			p <- p + facet_grid(Taxa ~ ., drop = TRUE, scale = "free", space = "fixed")
+			p <- p + facet_grid(Taxa ~ ., drop = TRUE, scale = "free", space = "fixed") + theme_bw()
 			for(i in seq_len(length(ordered_group) - 1)){
 				if(i %% 2 == 1){
 					p <- p + geom_rect(aes_string(xmin = i, xmax = (i + 1)), ymin = -Inf, ymax = Inf, alpha = 0.2, fill = fill_color[1])
@@ -249,13 +268,14 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			p <- p + geom_point(size = point_size, alpha = point_alpha, position = position) + 
 				geom_line(linewidth = line_size, alpha = line_alpha, linetype = line_type, position = position) + 
 				theme(strip.background = element_rect(fill = "grey95"), strip.text.y = element_text(angle = 360)) +
-				ylab("Relative abundance") + xlab("")
-
+				ylab("Relative abundance") + 
+				xlab("") +
+				scale_color_manual(values = color_values)
+						
 			p
 		}
 	),
 	private = list(
-		# This function is used for calculating ses.unifrac
 		abund_change = function(abund_table, sampleinfo, group, by_group){
 			res_abund <- reshape2::melt(tibble::rownames_to_column(abund_table, "Taxa"), id.vars = "Taxa") %>%
 				`colnames<-`(c("Taxa", "Sample", "Abund"))

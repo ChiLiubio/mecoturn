@@ -144,9 +144,11 @@ t1$cal_diff()
 Plot the line chart.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{taxaturn$plot(
+  select_taxa = NULL,
   number = 1:5,
-  delete_prefix = TRUE,
+  color_values = RColorBrewer::brewer.pal(8, "Dark2"),
   fill_color = c("grey70", "grey90"),
+  delete_prefix = TRUE,
   plot_SE = TRUE,
   position = position_dodge(0.1),
   errorbar_size = 1,
@@ -162,11 +164,17 @@ Plot the line chart.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{number}}{default 1:5; number of taxa in the plot.}
+\item{\code{select_taxa}}{default NULL; the taxa names used to show in the plot; If provided, the \code{number} parameter will be abandoned.
+Note that if \code{delete_prefix} is TRUE, the provided select_taxa should be taxa names without long prefix (those before |);
+if \code{delete_prefix} is FALSE, the select_taxa should be full names same with those in the \code{res_abund} of the object.}
 
-\item{\code{delete_prefix}}{default TRUE; whether delete the prefix in the taxa names.}
+\item{\code{number}}{default 1:5; number of taxa in the plot; valid when \code{select_taxa} is NULL; the taxa are selected according to the abudance from high to low.}
+
+\item{\code{color_values}}{default \code{RColorBrewer::brewer.pal}(8, "Dark2"); colors palette for the plotting.}
 
 \item{\code{fill_color}}{default c("grey70", "grey90"); the colors used to fill different plot area.}
+
+\item{\code{delete_prefix}}{default TRUE; whether delete the prefix in the taxa names.}
 
 \item{\code{plot_SE}}{default TRUE; TRUE: plot the errorbar with mean±se; FALSE: plot the errorbar with mean±sd.}
 
