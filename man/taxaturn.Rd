@@ -147,9 +147,10 @@ Plot the line chart.
   select_taxa = NULL,
   number = 1:5,
   color_values = RColorBrewer::brewer.pal(8, "Dark2"),
-  fill_color = c("grey70", "grey90"),
   delete_prefix = TRUE,
   plot_SE = TRUE,
+  fill_color = c("grey70", "grey90"),
+  fill_alpha = 0.2,
   position = position_dodge(0.1),
   errorbar_size = 1,
   errorbar_width = 0.1,
@@ -172,11 +173,13 @@ if \code{delete_prefix} is FALSE, the select_taxa should be full names same with
 
 \item{\code{color_values}}{default \code{RColorBrewer::brewer.pal}(8, "Dark2"); colors palette for the plotting.}
 
-\item{\code{fill_color}}{default c("grey70", "grey90"); the colors used to fill different plot area.}
-
 \item{\code{delete_prefix}}{default TRUE; whether delete the prefix in the taxa names.}
 
 \item{\code{plot_SE}}{default TRUE; TRUE: plot the errorbar with mean±se; FALSE: plot the errorbar with mean±sd.}
+
+\item{\code{fill_color}}{default c("grey70", "grey90"); the colors used to fill different plot area.}
+
+\item{\code{fill_alpha}}{default 0.2; the fill color transparency.}
 
 \item{\code{position}}{default position_dodge(0.1); Position adjustment, either as a string (such as "identity"), or the result of a call to a position adjustment function.}
 

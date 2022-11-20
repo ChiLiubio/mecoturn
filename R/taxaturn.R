@@ -187,9 +187,10 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'   if \code{delete_prefix} is FALSE, the select_taxa should be full names same with those in the \code{res_abund} of the object.
 		#' @param number default 1:5; number of taxa in the plot; valid when \code{select_taxa} is NULL; the taxa are selected according to the abudance from high to low.
 		#' @param color_values default \code{RColorBrewer::brewer.pal}(8, "Dark2"); colors palette for the plotting.
-		#' @param fill_color default c("grey70", "grey90"); the colors used to fill different plot area.
 		#' @param delete_prefix default TRUE; whether delete the prefix in the taxa names.
 		#' @param plot_SE default TRUE; TRUE: plot the errorbar with mean±se; FALSE: plot the errorbar with mean±sd.
+		#' @param fill_color default c("grey70", "grey90"); the colors used to fill different plot area.
+		#' @param fill_alpha default 0.2; the fill color transparency.
 		#' @param position default position_dodge(0.1); Position adjustment, either as a string (such as "identity"), or the result of a call to a position adjustment function.
 		#' @param errorbar_size default 1; errorbar size.
 		#' @param errorbar_width default 0.1; errorbar width.
@@ -207,9 +208,10 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			select_taxa = NULL,
 			number = 1:5,
 			color_values = RColorBrewer::brewer.pal(8, "Dark2"),
-			fill_color = c("grey70", "grey90"),
 			delete_prefix = TRUE,
 			plot_SE = TRUE,
+			fill_color = c("grey70", "grey90"),
+			fill_alpha = 0.2,
 			position = position_dodge(0.1),
 			errorbar_size = 1,
 			errorbar_width = 0.1,
@@ -243,26 +245,26 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			
 			if(is.null(by_ID)){
 				if(is.null(by_group)){
-					p <- ggplot(plot_data, aes_string(x = group, y = "Mean", group = "Taxa"))
+					p <- ggplot(plot_data, aes(!!as.symbol(group), Mean, group = Taxa))
 				}else{
-					p <- ggplot(plot_data, aes_string(x = group, y = "Mean", group = by_group, color = by_group))
+					p <- ggplot(plot_data, aes(!!as.symbol(group), Mean, group = !!as.symbol(by_group), color = !!as.symbol(by_group)))
 				}
 			}else{
-				p <- ggplot(plot_data, aes_string(x = group, y = "Mean", group = by_ID, color = by_group))
+				p <- ggplot(plot_data, aes(!!as.symbol(group), Mean, group = !!as.symbol(by_ID), color = !!as.symbol(by_group)))
 			}
 			if(("SE" %in% colnames(plot_data)) & plot_SE){
-				p <- p + geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = errorbar_width, position = position, size = errorbar_size)
+				p <- p + geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = errorbar_width, position = position, linewidth = errorbar_size)
 			}else{
 				if(("SD" %in% colnames(plot_data)) & plot_SE){
-					p <- p + geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD), width = errorbar_width, position = position, size = errorbar_size)
+					p <- p + geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD), width = errorbar_width, position = position, linewidth = errorbar_size)
 				}
 			}
 			p <- p + facet_grid(Taxa ~ ., drop = TRUE, scale = "free", space = "fixed") + theme_bw()
 			for(i in seq_len(length(ordered_group) - 1)){
 				if(i %% 2 == 1){
-					p <- p + geom_rect(aes_string(xmin = i, xmax = (i + 1)), ymin = -Inf, ymax = Inf, alpha = 0.2, fill = fill_color[1])
+					p <- p + geom_rect(xmin = i, xmax = i + 1, ymin = -Inf, ymax = Inf, alpha = fill_alpha, fill = fill_color[1], colour = "white")
 				}else{
-					p <- p + geom_rect(aes_string(xmin = i, xmax = (i + 1)), ymin = -Inf, ymax = Inf, alpha = 0.2, fill = fill_color[2])
+					p <- p + geom_rect(xmin = i, xmax = i + 1, ymin = -Inf, ymax = Inf, alpha = fill_alpha, fill = fill_color[2], colour = "white")
 				}
 			}
 			p <- p + geom_point(size = point_size, alpha = point_alpha, position = position) + 
@@ -271,7 +273,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 				ylab("Relative abundance") + 
 				xlab("") +
 				scale_color_manual(values = color_values)
-						
+
 			p
 		}
 	),
