@@ -91,8 +91,8 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @param within_group default TRUE; whether transform sample distance within groups, if FALSE, transform sample distance between any two groups.
 		#' @param by_group default NULL; one colname of sample_table in \code{microtable} object.
 		#'   If provided, convert distances according to the provided by_group parameter. This is especially useful for ordering and filtering values further.
-		#'   When \code{within_group = TRUE}, by_group in the result table is the format of paired groups.
-		#'   When \code{within_group = FALSE}, by_group in the result table is the format same with the group information in \code{sample_table}.
+		#'   When \code{within_group = TRUE}, the result of by_group parameter is the format of paired groups.
+		#'   When \code{within_group = FALSE}, the result of by_group parameter is the format same with the group information in \code{sample_table}.
 		#' @return \code{res_group_distance} stored in object.
 		#' @examples
 		#' \donttest{
@@ -110,30 +110,28 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @description
 		#' Differential test of distances among groups.
 		#'
-		#' @param comp_bygroup default FALSE; whether perform the differential test using by_group column coming from the return of function \code{cal_group_distance}.
-		#' @param ... parameters passed to \code{cal_diff} function of \code{\link{trans_alpha}} class.
+		#' @param ... parameters passed to \code{cal_group_distance_diff} function of \code{\link{trans_beta}} class.
 		#' @return \code{res_group_distance_diff} stored in object.
 		#' @examples
 		#' \donttest{
 		#' b1$cal_group_distance_diff(method = "wilcox")
 		#' }
-		cal_group_distance_diff = function(comp_bygroup = FALSE, ...){
-			suppressMessages(self$tmp_trans_beta$cal_group_distance_diff(comp_bygroup = comp_bygroup, ...))
+		cal_group_distance_diff = function(...){
+			suppressMessages(self$tmp_trans_beta$cal_group_distance_diff(...))
 			self$res_group_distance_diff <- self$tmp_trans_beta$res_group_distance_diff
 			message('The result is stored in object$res_group_distance_diff ...')
 		},
 		#' @description
 		#' Plot the distance between samples within or between groups.
 		#'
-		#' @param plot_group_order default NULL; a vector used to order the groups in the plot.
-		#' @param ... parameters (except measure) passed to \code{plot_alpha} function of \code{\link{trans_alpha}} class.
+		#' @param ... parameters passed to \code{plot_group_distance} function of \code{\link{trans_beta}} class.
 		#' @return \code{ggplot}.
 		#' @examples
 		#' \donttest{
 		#' b1$plot_group_distance()
 		#' }
-		plot_group_distance = function(plot_group_order = NULL, ...){
-			self$tmp_trans_beta$plot_group_distance(plot_group_order = plot_group_order, ...)
+		plot_group_distance = function(...){
+			self$tmp_trans_beta$plot_group_distance(...)
 		}
 	),
 	private = list(

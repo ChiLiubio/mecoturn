@@ -22,6 +22,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'   a colname of sample_table of input dataset means the consistent change is obtained for each group instead of all the elements in \code{by_group};
 		#'   Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
 		#'   So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.
+		#' @param filter_thres default 0; the mean abundance threshold used to filter features.
 		#' @return \code{res_change} and \code{res_abund}.
 		#' @examples
 		#' \donttest{
@@ -29,7 +30,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"))
 		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
 		#' }
-		initialize = function(dataset, taxa_level = "Phylum", group, ordered_group, by_ID = NULL, by_group = NULL){
+		initialize = function(dataset, taxa_level = "Phylum", group, ordered_group, by_ID = NULL, by_group = NULL, filter_thres = 0){
 			tmp_dataset <- clone(dataset)
 			# first check groups
 			if(!group %in% colnames(tmp_dataset$sample_table)){
@@ -61,6 +62,12 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 				suppressMessages(tmp_dataset$cal_abund(rel = TRUE))
 			}
 			abund_table <- tmp_dataset$taxa_abund[[taxa_level]]
+			if(filter_thres > 0){
+				abund_table %<>% .[apply(., 1, mean) > filter_thres, ]
+				if(nrow(abund_table) == 0){
+					stop("Please check the filter_thres parameter! No feature remained after filtering!")
+				}
+			}
 			abund_table %<>% {.[!grepl("__$|uncultured$|Incertae..edis$|_sp$", rownames(.), ignore.case = TRUE), ]}
 
 			# transform the abundance along by_ID or across by_group
@@ -250,21 +257,25 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 					p <- ggplot(plot_data, aes(!!as.symbol(group), Mean, group = !!as.symbol(by_group), color = !!as.symbol(by_group)))
 				}
 			}else{
-				p <- ggplot(plot_data, aes(!!as.symbol(group), Mean, group = !!as.symbol(by_ID), color = !!as.symbol(by_group)))
+				if(is.null(by_group)){
+					p <- ggplot(plot_data, aes(!!as.symbol(group), Mean, group = !!as.symbol(by_ID)))
+				}else{
+					p <- ggplot(plot_data, aes(!!as.symbol(group), Mean, group = !!as.symbol(by_ID), color = !!as.symbol(by_group)))
+				}
+			}
+			p <- p + facet_grid(Taxa ~ ., drop = TRUE, scale = "free", space = "fixed") + theme_bw()
+			for(i in seq_len(length(ordered_group) - 1)){
+				if(i %% 2 == 1){
+					p <- p + geom_rect(xmin = i, xmax = i + 1, ymin = -Inf, ymax = Inf, alpha = fill_alpha, fill = fill_color[1], colour = fill_color[1])
+				}else{
+					p <- p + geom_rect(xmin = i, xmax = i + 1, ymin = -Inf, ymax = Inf, alpha = fill_alpha, fill = fill_color[2], colour = fill_color[2])
+				}
 			}
 			if(("SE" %in% colnames(plot_data)) & plot_SE){
 				p <- p + geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = errorbar_width, position = position, linewidth = errorbar_size)
 			}else{
 				if(("SD" %in% colnames(plot_data)) & plot_SE){
 					p <- p + geom_errorbar(aes(ymin = Mean - SD, ymax = Mean + SD), width = errorbar_width, position = position, linewidth = errorbar_size)
-				}
-			}
-			p <- p + facet_grid(Taxa ~ ., drop = TRUE, scale = "free", space = "fixed") + theme_bw()
-			for(i in seq_len(length(ordered_group) - 1)){
-				if(i %% 2 == 1){
-					p <- p + geom_rect(xmin = i, xmax = i + 1, ymin = -Inf, ymax = Inf, alpha = fill_alpha, fill = fill_color[1], colour = "white")
-				}else{
-					p <- p + geom_rect(xmin = i, xmax = i + 1, ymin = -Inf, ymax = Inf, alpha = fill_alpha, fill = fill_color[2], colour = "white")
 				}
 			}
 			p <- p + geom_point(size = point_size, alpha = point_alpha, position = position) + 

@@ -54,7 +54,8 @@ t1$plot()
   group,
   ordered_group,
   by_ID = NULL,
-  by_group = NULL
+  by_group = NULL,
+  filter_thres = 0
 )}\if{html}{\out{</div>}}
 }
 
@@ -82,6 +83,8 @@ If it does not represent unique ID, the mean of each group will be calculated, a
 a colname of sample_table of input dataset means the consistent change is obtained for each group instead of all the elements in \code{by_group};
 Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
 So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.}
+
+\item{\code{filter_thres}}{default 0; the mean abundance threshold used to filter features.}
 }
 \if{html}{\out{</div>}}
 }

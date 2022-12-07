@@ -123,8 +123,8 @@ Transform sample distances within groups or between groups.
 
 \item{\code{by_group}}{default NULL; one colname of sample_table in \code{microtable} object.
 If provided, convert distances according to the provided by_group parameter. This is especially useful for ordering and filtering values further.
-When \code{within_group = TRUE}, by_group in the result table is the format of paired groups.
-When \code{within_group = FALSE}, by_group in the result table is the format same with the group information in \code{sample_table}.}
+When \code{within_group = TRUE}, the result of by_group parameter is the format of paired groups.
+When \code{within_group = FALSE}, the result of by_group parameter is the format same with the group information in \code{sample_table}.}
 }
 \if{html}{\out{</div>}}
 }
@@ -148,15 +148,13 @@ b1$cal_group_distance(group = "Type", within_group = FALSE, by_group = "Plant_ID
 \subsection{Method \code{cal_group_distance_diff()}}{
 Differential test of distances among groups.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{betaturn$cal_group_distance_diff(comp_bygroup = FALSE, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{betaturn$cal_group_distance_diff(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{comp_bygroup}}{default FALSE; whether perform the differential test using by_group column coming from the return of function \code{cal_group_distance}.}
-
-\item{\code{...}}{parameters passed to \code{cal_diff} function of \code{\link{trans_alpha}} class.}
+\item{\code{...}}{parameters passed to \code{cal_group_distance_diff} function of \code{\link{trans_beta}} class.}
 }
 \if{html}{\out{</div>}}
 }
@@ -180,15 +178,13 @@ b1$cal_group_distance_diff(method = "wilcox")
 \subsection{Method \code{plot_group_distance()}}{
 Plot the distance between samples within or between groups.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{betaturn$plot_group_distance(plot_group_order = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{betaturn$plot_group_distance(...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{plot_group_order}}{default NULL; a vector used to order the groups in the plot.}
-
-\item{\code{...}}{parameters (except measure) passed to \code{plot_alpha} function of \code{\link{trans_alpha}} class.}
+\item{\code{...}}{parameters passed to \code{plot_group_distance} function of \code{\link{trans_beta}} class.}
 }
 \if{html}{\out{</div>}}
 }
