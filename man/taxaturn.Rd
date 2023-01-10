@@ -70,7 +70,7 @@ the function will use the features in input \code{microtable$otu_table} automati
 
 \item{\code{group}}{sample group used for the selection; a colname of input \code{microtable$sample_table}.}
 
-\item{\code{ordered_group}}{a vector representing the elements of \code{group} parameter.}
+\item{\code{ordered_group}}{a vector representing the ordered elements of \code{group} parameter.}
 
 \item{\code{by_ID}}{default NULL; a column of sample_table used to obtain the consistent change along provided elements.
 So by_ID can be ID (unique repetition) or even group (with repetitions). 

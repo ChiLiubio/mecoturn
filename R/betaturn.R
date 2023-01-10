@@ -93,16 +93,18 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#'   If provided, convert distances according to the provided by_group parameter. This is especially useful for ordering and filtering values further.
 		#'   When \code{within_group = TRUE}, the result of by_group parameter is the format of paired groups.
 		#'   When \code{within_group = FALSE}, the result of by_group parameter is the format same with the group information in \code{sample_table}.
+		#' @param ordered_group default NULL; a vector representing the ordered elements of \code{group} parameter; only useful when within_group = FALSE.
+		#' @param sep default TRUE; a character string to separate the group names after merging them into a new name.
 		#' @return \code{res_group_distance} stored in object.
 		#' @examples
 		#' \donttest{
 		#' b1$cal_group_distance(group = "Type", within_group = FALSE, by_group = "Plant_ID")
 		#' }
-		cal_group_distance = function(group, within_group = TRUE, by_group = NULL){
+		cal_group_distance = function(group, within_group = TRUE, by_group = NULL, ordered_group = NULL, sep = " vs "){
 			dataset <- self$dataset
 			measure <- self$measure
 			trans_beta_object <- trans_beta$new(dataset = dataset, group = group, measure = measure)
-			suppressMessages(trans_beta_object$cal_group_distance(within_group = within_group, by_group = by_group))
+			suppressMessages(trans_beta_object$cal_group_distance(within_group = within_group, by_group = by_group, ordered_group = ordered_group, sep = sep))
 			self$res_group_distance <- trans_beta_object$res_group_distance
 			message('The result is stored in object$res_group_distance ...')
 			self$tmp_trans_beta <- trans_beta_object
