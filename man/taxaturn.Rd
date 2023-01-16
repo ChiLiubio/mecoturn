@@ -23,7 +23,8 @@ t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_gro
 ## ------------------------------------------------
 
 \donttest{
-t1$cal_diff()
+t1$cal_diff(method = "wilcox")
+t1$cal_diff(method = "betareg", formula = "Type")
 }
 
 ## ------------------------------------------------
@@ -110,7 +111,7 @@ t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_gro
 \subsection{Method \code{cal_diff()}}{
 Differential test of taxonomic abudance across groups
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{taxaturn$cal_diff(method = c("wilcox", "t.test")[1], ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{taxaturn$cal_diff(method = c("wilcox", "t.test", "betareg", "lme")[1], ...)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -120,6 +121,8 @@ Differential test of taxonomic abudance across groups
 \describe{
   \item{\strong{'wilcox'}}{Wilcoxon Rank Sum and Signed Rank Tests for all paired groups }
   \item{\strong{'t.test'}}{Student's t-Test for all paired groups}
+  \item{\strong{'betareg'}}{Beta Regression based on the \code{betareg} package}
+  \item{\strong{'lme'}}{lme: Linear Mixed Effect Model based on the \code{lmerTest} package}
 }}
 
 \item{\code{...}}{parameters passed to \code{trans_diff$new}.}
@@ -132,7 +135,8 @@ Differential test of taxonomic abudance across groups
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{\donttest{
-t1$cal_diff()
+t1$cal_diff(method = "wilcox")
+t1$cal_diff(method = "betareg", formula = "Type")
 }
 }
 \if{html}{\out{</div>}}
@@ -147,13 +151,14 @@ t1$cal_diff()
 Plot the line chart.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{taxaturn$plot(
-  select_taxa = NULL,
-  number = 1:5,
+  select_taxon = NULL,
   color_values = RColorBrewer::brewer.pal(8, "Dark2"),
   delete_prefix = TRUE,
-  plot_SE = TRUE,
-  fill_color = c("grey70", "grey90"),
-  fill_alpha = 0.2,
+  plot_type = c("point", "line", "errorbar", "smooth")[1:3],
+  errorbar_SE = TRUE,
+  rect_fill = TRUE,
+  rect_color = c("grey70", "grey90"),
+  rect_alpha = 0.2,
   position = position_dodge(0.1),
   errorbar_size = 1,
   errorbar_width = 0.1,
@@ -161,30 +166,33 @@ Plot the line chart.
   point_alpha = 0.8,
   line_size = 0.8,
   line_alpha = 0.8,
-  line_type = 1
+  line_type = 1,
+  ...
 )}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{select_taxa}}{default NULL; the taxa names used to show in the plot; If provided, the \code{number} parameter will be abandoned.
-Note that if \code{delete_prefix} is TRUE, the provided select_taxa should be taxa names without long prefix (those before |);
-if \code{delete_prefix} is FALSE, the select_taxa should be full names same with those in the \code{res_abund} of the object.}
-
-\item{\code{number}}{default 1:5; number of taxa in the plot; valid when \code{select_taxa} is NULL; the taxa are selected according to the abudance from high to low.}
+\item{\code{select_taxon}}{default NULL; a taxon name.
+Note that if \code{delete_prefix} is TRUE, the provided select_taxon should be taxa names without long prefix (those before |);
+if \code{delete_prefix} is FALSE, the select_taxon should be full names same with those in the \code{res_abund} of the object.}
 
 \item{\code{color_values}}{default \code{RColorBrewer::brewer.pal}(8, "Dark2"); colors palette for the plotting.}
 
 \item{\code{delete_prefix}}{default TRUE; whether delete the prefix in the taxa names.}
 
-\item{\code{plot_SE}}{default TRUE; TRUE: plot the errorbar with mean±se; FALSE: plot the errorbar with mean±sd.}
+\item{\code{plot_type}}{default c("point", "line", "errorbar", "smooth")[1:3]; a vector of visualization types. Multiple elements are available. 
+'smooth' denotes the fitting with \code{geom_smooth} function of ggplot2 package.}
 
-\item{\code{fill_color}}{default c("grey70", "grey90"); the colors used to fill different plot area.}
+\item{\code{errorbar_SE}}{default TRUE; TRUE: plot the errorbar with mean ± se; FALSE: plot the errorbar with mean ± sd.}
 
-\item{\code{fill_alpha}}{default 0.2; the fill color transparency.}
+\item{\code{rect_color}}{default c("grey70", "grey90"); the colors used to fill different plot area.}
 
-\item{\code{position}}{default position_dodge(0.1); Position adjustment, either as a string (such as "identity"), or the result of a call to a position adjustment function.}
+\item{\code{rect_alpha}}{default 0.2; the fill color transparency.}
+
+\item{\code{position}}{default position_dodge(0.1); Position adjustment for the points and lines, either as a string (such as "identity"), 
+or the result of a call to a position adjustment function.}
 
 \item{\code{errorbar_size}}{default 1; errorbar size.}
 
@@ -199,6 +207,8 @@ if \code{delete_prefix} is FALSE, the select_taxa should be full names same with
 \item{\code{line_alpha}}{default 0.8; line transparency.}
 
 \item{\code{line_type}}{default 1; an integer; line type.}
+
+\item{\code{...}}{parameters passed to \code{geom_smooth} when 'smooth' is in plot_type parameter.}
 }
 \if{html}{\out{</div>}}
 }

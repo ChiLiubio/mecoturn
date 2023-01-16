@@ -116,7 +116,8 @@ Transform sample distances within groups or between groups.
   within_group = TRUE,
   by_group = NULL,
   ordered_group = NULL,
-  sep = " vs "
+  sep = " vs ",
+  add_cols = NULL
 )}\if{html}{\out{</div>}}
 }
 
@@ -135,6 +136,9 @@ When \code{within_group = FALSE}, the result of by_group parameter is the format
 \item{\code{ordered_group}}{default NULL; a vector representing the ordered elements of \code{group} parameter; only useful when within_group = FALSE.}
 
 \item{\code{sep}}{default TRUE; a character string to separate the group names after merging them into a new name.}
+
+\item{\code{add_cols}}{default NULL; add several columns of sample_table to the final \code{res_group_distance} table according to the \code{by_group} column; 
+used only when \code{within_group = FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

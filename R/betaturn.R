@@ -95,16 +95,24 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#'   When \code{within_group = FALSE}, the result of by_group parameter is the format same with the group information in \code{sample_table}.
 		#' @param ordered_group default NULL; a vector representing the ordered elements of \code{group} parameter; only useful when within_group = FALSE.
 		#' @param sep default TRUE; a character string to separate the group names after merging them into a new name.
+		#' @param add_cols default NULL; add several columns of sample_table to the final \code{res_group_distance} table according to the \code{by_group} column; 
+		#'   used only when \code{within_group = FALSE}.
 		#' @return \code{res_group_distance} stored in object.
 		#' @examples
 		#' \donttest{
 		#' b1$cal_group_distance(group = "Type", within_group = FALSE, by_group = "Plant_ID")
 		#' }
-		cal_group_distance = function(group, within_group = TRUE, by_group = NULL, ordered_group = NULL, sep = " vs "){
+		cal_group_distance = function(group, within_group = TRUE, by_group = NULL, ordered_group = NULL, sep = " vs ", add_cols = NULL){
 			dataset <- self$dataset
 			measure <- self$measure
 			trans_beta_object <- trans_beta$new(dataset = dataset, group = group, measure = measure)
 			suppressMessages(trans_beta_object$cal_group_distance(within_group = within_group, by_group = by_group, ordered_group = ordered_group, sep = sep))
+			if(!is.null(add_cols) & within_group == FALSE){
+				if(!all(add_cols %in% colnames(dataset$sample_table))){
+					stop("Please provide correct add_cols parameter!")
+				}
+				trans_beta_object$res_group_distance %<>% dplyr::left_join(., unique(dataset$sample_table[, c(by_group, add_cols)]), by = by_group)
+			}
 			self$res_group_distance <- trans_beta_object$res_group_distance
 			message('The result is stored in object$res_group_distance ...')
 			self$tmp_trans_beta <- trans_beta_object
@@ -119,6 +127,7 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' b1$cal_group_distance_diff(method = "wilcox")
 		#' }
 		cal_group_distance_diff = function(...){
+			self$tmp_trans_beta$res_group_distance <- self$res_group_distance
 			suppressMessages(self$tmp_trans_beta$cal_group_distance_diff(...))
 			self$res_group_distance_diff <- self$tmp_trans_beta$res_group_distance_diff
 			message('The result is stored in object$res_group_distance_diff ...')
