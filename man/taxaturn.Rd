@@ -187,9 +187,11 @@ if \code{delete_prefix} is FALSE, the select_taxon should be full names same wit
 
 \item{\code{errorbar_SE}}{default TRUE; TRUE: plot the errorbar with mean ± se; FALSE: plot the errorbar with mean ± sd.}
 
-\item{\code{rect_color}}{default c("grey70", "grey90"); the colors used to fill different plot area.}
+\item{\code{rect_fill}}{default TRUE; Whether fill color in each rectangular area.}
 
-\item{\code{rect_alpha}}{default 0.2; the fill color transparency.}
+\item{\code{rect_color}}{default c("grey70", "grey90"); the colors used to fill different rectangular area.}
+
+\item{\code{rect_alpha}}{default 0.2; the fill color transparency in rectangular area.}
 
 \item{\code{position}}{default position_dodge(0.1); Position adjustment for the points and lines, either as a string (such as "identity"), 
 or the result of a call to a position adjustment function.}

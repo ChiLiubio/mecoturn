@@ -230,8 +230,9 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' @param plot_type default c("point", "line", "errorbar", "smooth")[1:3]; a vector of visualization types. Multiple elements are available. 
 		#'   'smooth' denotes the fitting with \code{geom_smooth} function of ggplot2 package.
 		#' @param errorbar_SE default TRUE; TRUE: plot the errorbar with mean ± se; FALSE: plot the errorbar with mean ± sd.
-		#' @param rect_color default c("grey70", "grey90"); the colors used to fill different plot area.
-		#' @param rect_alpha default 0.2; the fill color transparency.
+		#' @param rect_fill default TRUE; Whether fill color in each rectangular area.
+		#' @param rect_color default c("grey70", "grey90"); the colors used to fill different rectangular area.
+		#' @param rect_alpha default 0.2; the fill color transparency in rectangular area.
 		#' @param position default position_dodge(0.1); Position adjustment for the points and lines, either as a string (such as "identity"), 
 		#'   or the result of a call to a position adjustment function.
 		#' @param errorbar_size default 1; errorbar size.
@@ -364,10 +365,24 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 					if(all(lagged_abund > 0)){
 						"Increase"
 					}else{
-						""
+						paste0(sapply(lagged_abund, private$get_symbol), collapse = "|")
 					}
 				}
 			}) %>% unlist
+		},
+		get_symbol = function(x){
+			if(!is.numeric(x)){
+				stop("The input must be numeric!")
+			}
+			if(x > 0){
+				"+"
+			}else{
+				if(x < 0){
+					"-"
+				}else{
+					"0"
+				}
+			}
 		}
 	),
 	lock_objects = FALSE,
