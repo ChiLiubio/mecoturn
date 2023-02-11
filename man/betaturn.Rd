@@ -73,14 +73,17 @@ b1$plot_group_distance()
 
 \item{\code{measure}}{default NULL; beta diversity dissimilarity metric; 
 must be one of \code{c("bray", "jaccard", "wei_unifrac", "unwei_unifrac", "betaMPD", "betaMNTD", "betaNRI", "betaNTI", "ses_UniFrac", "RCbray")}
-or other options in parameter \code{method} of \code{\link{vegan::vegdist}} function.}
+or other options in parameter \code{method} of \code{\link{vegan::vegdist}} function.
+If the distance matrix has been in the beta_diversity list of microtable object, 
+the function can ignore the calculation. Otherwise, the function can return the corresponding beta diversity distance matrix in the microtable object.}
 
 \item{\code{filter_thres}}{default 0; the relative abundance threshold used to filter features.}
 
 \item{\code{abundance.weighted}}{default TRUE; whether use abundance-weighted method for the phylogenetic metrics.}
 
 \item{\code{null.model}}{default NULL; one of \code{c("taxa.labels", "richness", "frequency", "sample.pool", "phylogeny.pool", "independentswap", "trialswap")},
-in which "taxa.labels" can only used for phylogenetic analysis.}
+in which "taxa.labels" can only be used for phylogenetic analysis. 
+See \code{null.model} parameter of \code{ses.mntd} function in \code{picante} package for the algorithm details.}
 
 \item{\code{runs}}{default 1000; simulation runs of null model.}
 
