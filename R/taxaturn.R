@@ -22,15 +22,20 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'   a colname of sample_table of input dataset means the consistent change is obtained for each group instead of all the elements in \code{by_group};
 		#'   Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
 		#'   So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.
-		#' @param filter_thres default 0; the mean abundance threshold used to filter features.
+		#' @param filter_thres default 0; the mean abundance threshold used to filter features with low abudance.
 		#' @return \code{res_change} and \code{res_abund}.
 		#' @examples
 		#' \donttest{
 		#' data(wheat_16S)
-		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"))
-		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
+		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
+		#' 	 ordered_group = c("S", "RS", "R"))
+		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
+		#'	 ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
 		#' }
 		initialize = function(dataset, taxa_level = "Phylum", group, ordered_group, by_ID = NULL, by_group = NULL, filter_thres = 0){
+			if(!inherits(dataset, "microtable")){
+				stop("Input dataset must be microtable class!")
+			}
 			tmp_dataset <- clone(dataset)
 			# first check groups
 			if(!group %in% colnames(tmp_dataset$sample_table)){
@@ -130,7 +135,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			self$taxa_level <- taxa_level
 		},
 		#' @description
-		#' Differential test of taxonomic abudance across groups
+		#' Differential test of taxonomic abundance across groups
 		#'
 		#' @param method default "wilcox"; see the following available options:
 		#'   \describe{
@@ -138,15 +143,16 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'     \item{\strong{'t.test'}}{Student's t-Test for all paired groups}
 		#'     \item{\strong{'betareg'}}{Beta Regression based on the \code{betareg} package}
 		#'     \item{\strong{'lme'}}{lme: Linear Mixed Effect Model based on the \code{lmerTest} package}
+		#'     \item{\strong{'anova'}}{one-way or multi-way anova}
 		#'   }
 		#' @param ... parameters passed to \code{trans_diff$new}.
-		#' @return \code{res_change}, updated in the object.
+		#' @return \code{res_change} or \code{res_diff}.
 		#' @examples
 		#' \donttest{
 		#' t1$cal_diff(method = "wilcox")
 		#' t1$cal_diff(method = "betareg", formula = "Type")
 		#' }
-		cal_diff = function(method = c("wilcox", "t.test", "betareg", "lme")[1], ...){
+		cal_diff = function(method = c("wilcox", "t.test", "betareg", "lme", "anova")[1], ...){
 			ordered_group <- self$ordered_group
 			group <- self$group
 			by_ID <- self$by_ID
@@ -154,8 +160,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			res_change <- self$res_change
 			taxa_level <- self$taxa_level
 			tmp_dataset <- self$tmp_dataset
-
-			method <- match.arg(method, c("wilcox", "t.test", "betareg", "lme"))
+			method <- match.arg(method, c("wilcox", "t.test", "betareg", "lme", "anova"))
 			
 			if(method %in% c("wilcox", "t.test")){
 				res_table <- data.frame()
@@ -188,7 +193,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 				self$res_diff_raw <- res_table
 				message('Raw differential test results are stored in object$res_diff_raw ...')
 				self$res_change <- res_change
-				message('Differential test results have been added in object$res_change ...')
+				message('Differential test results have been added into object$res_change ...')
 			}
 			if(method == "betareg"){
 				tmp <- clone(tmp_dataset)
@@ -212,7 +217,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 				self$res_diff <- res_table
 				message('The results are stored in object$res_diff ...')
 			}
-			if(method == "lme"){
+			if(method %in% c("lme", "anova")){
 				tmp <- clone(tmp_dataset)
 				t1 <- suppressMessages(trans_diff$new(dataset = tmp, method = method, taxa_level = taxa_level, ...))
 				self$res_diff <- t1$res_diff
@@ -269,10 +274,8 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			){
 			by_ID <- self$by_ID
 			by_group <- self$by_group
-			
 			plot_data <- self$res_abund
 			group <- self$group
-
 			ordered_group <- self$ordered_group
 			plot_data[, group] %<>% factor(levels = ordered_group)
 			if(delete_prefix){

@@ -1,11 +1,14 @@
-citHeader("To cite microeco in publications use:")
 
-citEntry(entry="article",
-         title = "Deciphering microbial turnover among plant compartments",
-         author = personList( as.person("Chi Liu"),
-                              as.person("Xiangzhen Li"),
-                              as.person("Minjie Yao*")),
-         year = "2023",
-         textVersion = "Chi Liu et al. Deciphering microbial turnover among plant compartments. Under Review."
+bibentry(bibtype = "Article",
+         textVersion = "Chi Liu, Yaoming Cui, Xiangzhen Li, Minjie Yao. microeco: an R package for data mining in microbial community ecology. FEMS Microbiology Ecology, 2021, Volume 97, Issue 2, fiaa255.",
+         header = "To cite mecoturn in publications use:",
+         title = "microeco: An R package for data mining in microbial community ecology",
+         author = c("Chi Liu", "Yaoming Cui", "Xiangzhen Li", "Minjie Yao"),
+         year = "2021",
+         journal = "FEMS Microbiology Ecology",
+         volume = "97",
+		 number = "2",
+         pages = "fiaa255",
+         doi = "10.1093/femsec/fiaa255",
+         url = "https://doi.org/10.1093/femsec/fiaa255"
 )
-

@@ -2,9 +2,9 @@
 % Please edit documentation in R/betaturn.R
 \name{betaturn}
 \alias{betaturn}
-\title{Analyze the 'turnover' of beta-diversity.}
+\title{Analyze the 'turnover' of microbial communities.}
 \description{
-Analyze the 'turnover' of beta-diversity.
+Analyze the 'turnover' of microbial communities, i.e. beta-diversity along a gradient.
 }
 \examples{
 
@@ -56,7 +56,7 @@ b1$plot_group_distance()
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{betaturn$new(
   dataset,
-  measure = NULL,
+  measure = "bray",
   filter_thres = 0,
   abundance.weighted = TRUE,
   null.model = NULL,
@@ -71,13 +71,14 @@ b1$plot_group_distance()
 \describe{
 \item{\code{dataset}}{the object of \code{\link{microtable}} class.}
 
-\item{\code{measure}}{default NULL; beta diversity dissimilarity metric; 
+\item{\code{measure}}{default "bray"; beta diversity dissimilarity metric; 
 must be one of \code{c("bray", "jaccard", "wei_unifrac", "unwei_unifrac", "betaMPD", "betaMNTD", "betaNRI", "betaNTI", "ses_UniFrac", "RCbray")}
-or other options in parameter \code{method} of \code{\link{vegan::vegdist}} function.
+or other options in parameter \code{method} of \code{vegan::vegdist} function.
 If the distance matrix has been in the beta_diversity list of microtable object, 
-the function can ignore the calculation. Otherwise, the function can return the corresponding beta diversity distance matrix in the microtable object.}
+the function can ignore this step. Otherwise, the function can generate the corresponding beta diversity distance matrix in the microtable object.
+bray: Bray-Curtis; RCbray: Raup–Crick based Bray-Curtis; wei_unifrac: weighted UniFrac; ses_UniFrac: standardized deviation of UniFrac.}
 
-\item{\code{filter_thres}}{default 0; the relative abundance threshold used to filter features.}
+\item{\code{filter_thres}}{default 0; the relative abundance threshold used to filter features with low abundance.}
 
 \item{\code{abundance.weighted}}{default TRUE; whether use abundance-weighted method for the phylogenetic metrics.}
 
@@ -85,7 +86,7 @@ the function can ignore the calculation. Otherwise, the function can return the 
 in which "taxa.labels" can only be used for phylogenetic analysis. 
 See \code{null.model} parameter of \code{ses.mntd} function in \code{picante} package for the algorithm details.}
 
-\item{\code{runs}}{default 1000; simulation runs of null model.}
+\item{\code{runs}}{default 1000; simulation number of times for null model.}
 
 \item{\code{iterations}}{default 1000; iteration number for part null models to perform; see iterations parameter of \code{picante::randomizeMatrix} function.}
 
@@ -112,7 +113,7 @@ b1 <- betaturn$new(wheat_16S, measure = "bray")
 \if{html}{\out{<a id="method-betaturn-cal_group_distance"></a>}}
 \if{latex}{\out{\hypertarget{method-betaturn-cal_group_distance}{}}}
 \subsection{Method \code{cal_group_distance()}}{
-Transform sample distances within groups or between groups.
+Convert sample distances within groups or between groups.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{betaturn$cal_group_distance(
   group,
@@ -129,7 +130,7 @@ Transform sample distances within groups or between groups.
 \describe{
 \item{\code{group}}{one colname of sample_table in \code{microtable} object used for group distance convertion.}
 
-\item{\code{within_group}}{default TRUE; whether transform sample distance within groups, if FALSE, transform sample distance between any two groups.}
+\item{\code{within_group}}{default TRUE; whether transform sample distance within groups? If FALSE, transform sample distances between any two groups.}
 
 \item{\code{by_group}}{default NULL; one colname of sample_table in \code{microtable} object.
 If provided, convert distances according to the provided by_group parameter. This is especially useful for ordering and filtering values further.
@@ -141,7 +142,7 @@ When \code{within_group = FALSE}, the result of by_group parameter is the format
 \item{\code{sep}}{default TRUE; a character string to separate the group names after merging them into a new name.}
 
 \item{\code{add_cols}}{default NULL; add several columns of sample_table to the final \code{res_group_distance} table according to the \code{by_group} column; 
-used only when \code{within_group = FALSE}.}
+invoked only when \code{within_group = FALSE}.}
 }
 \if{html}{\out{</div>}}
 }

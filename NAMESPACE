@@ -2,6 +2,7 @@
 
 export(betaturn)
 export(taxaturn)
+import(ggplot2)
 import(microeco)
 importFrom(R6,R6Class)
 importFrom(ggpubr,ggboxplot)

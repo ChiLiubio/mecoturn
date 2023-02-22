@@ -1,23 +1,24 @@
-#' @title Analyze the 'turnover' of beta-diversity.
+#' @title Analyze the 'turnover' of microbial communities.
 #' 
 #' @description
-#' Analyze the 'turnover' of beta-diversity.
+#' Analyze the 'turnover' of microbial communities, i.e. beta-diversity along a gradient.
 #'
 #' @export
 betaturn <- R6::R6Class(classname = "betaturn",
 	public = list(
 		#' @param dataset the object of \code{\link{microtable}} class.
-		#' @param measure default NULL; beta diversity dissimilarity metric; 
+		#' @param measure default "bray"; beta diversity dissimilarity metric; 
 		#' 	 must be one of \code{c("bray", "jaccard", "wei_unifrac", "unwei_unifrac", "betaMPD", "betaMNTD", "betaNRI", "betaNTI", "ses_UniFrac", "RCbray")}
-		#' 	 or other options in parameter \code{method} of \code{\link{vegan::vegdist}} function.
+		#' 	 or other options in parameter \code{method} of \code{vegan::vegdist} function.
 		#' 	 If the distance matrix has been in the beta_diversity list of microtable object, 
-		#' 	 the function can ignore the calculation. Otherwise, the function can return the corresponding beta diversity distance matrix in the microtable object.
-		#' @param filter_thres default 0; the relative abundance threshold used to filter features.
+		#' 	 the function can ignore this step. Otherwise, the function can generate the corresponding beta diversity distance matrix in the microtable object.
+		#' 	 bray: Bray-Curtis; RCbray: Raup–Crick based Bray-Curtis; wei_unifrac: weighted UniFrac; ses_UniFrac: standardized deviation of UniFrac.
+		#' @param filter_thres default 0; the relative abundance threshold used to filter features with low abundance.
 		#' @param abundance.weighted default TRUE; whether use abundance-weighted method for the phylogenetic metrics.
 		#' @param null.model default NULL; one of \code{c("taxa.labels", "richness", "frequency", "sample.pool", "phylogeny.pool", "independentswap", "trialswap")},
 		#'   in which "taxa.labels" can only be used for phylogenetic analysis. 
 		#'   See \code{null.model} parameter of \code{ses.mntd} function in \code{picante} package for the algorithm details.
-		#' @param runs default 1000; simulation runs of null model.
+		#' @param runs default 1000; simulation number of times for null model.
 		#' @param iterations default 1000; iteration number for part null models to perform; see iterations parameter of \code{picante::randomizeMatrix} function.
 		#' @param ... parameters passed to \code{cal_betadiv} function of \code{microtable} class when provided measure is not in the current vector;
 		#'   parameters passed to \code{cal_betamntd} function of \code{trans_nullmodel} class when \code{measure = "betaMNTD"};
@@ -26,70 +27,76 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @examples
 		#' data(wheat_16S)
 		#' b1 <- betaturn$new(wheat_16S, measure = "bray")
-		initialize = function(dataset, measure = NULL, filter_thres = 0, abundance.weighted = TRUE, null.model = NULL, runs = 1000, iterations = 1000, ...){
-			set.seed(123) # set the random seed
+		initialize = function(dataset, measure = "bray", filter_thres = 0, abundance.weighted = TRUE, null.model = NULL, runs = 1000, iterations = 1000, ...){
+			# check input format
+			if(!inherits(dataset, "microtable")){
+				stop("Input dataset must be microtable class!")
+			}
 			tmp <- clone(dataset)
 			if(filter_thres > 0){
 				tmp$otu_table %<>% .[apply(., 1, sum)/sum(.) > filter_thres, ]
 				tmp$tidy_dataset()
 			}
-			if(!is.null(measure)){
-				if(measure %in% names(tmp$beta_diversity)){
-					message("The input measure has been in the beta_diversity list of dataset ...")
+			if(is.null(measure)){
+				stop("Input measure should not be NULL!")
+			}
+			if(measure %in% names(tmp$beta_diversity)){
+				message("The input measure has been in the beta_diversity list of dataset ...")
+			}else{
+				if(is.null(null.model)){
+					if(measure == "RCbray"){
+						null.model <- "independentswap"
+						message("Use independentswap as the null model for ", measure, " ...")
+					}else{
+						if(measure %in% c("betaNRI", "betaNTI", "ses_UniFrac")){
+							null.model <- "taxa.labels"
+							message("Use taxa.labels as the null model for ", measure, " ...")
+						}
+					}
 				}else{
-					if(is.null(null.model)){
-						if(measure == "RCbray"){
-							null.model <- "independentswap"
-							message("Use independentswap as the null model for ", measure, " ...")
-						}else{
-							if(measure %in% c("betaNRI", "betaNTI", "ses_UniFrac")){
-								null.model <- "taxa.labels"
-								message("Use taxa.labels as the null model for ", measure, " ...")
-							}
-						}
+					# check the input null model
+					if(! null.model %in% c('taxa.labels', 'richness', 'frequency', 'sample.pool', 'phylogeny.pool', 'independentswap', 'trialswap')){
+						stop("The input null.model must be one of c('taxa.labels', 'richness', 'frequency', 'sample.pool', 'phylogeny.pool', 'independentswap', 'trialswap')!")
+					}
+				}
+				if(! measure %in% c("betaMPD", "betaMNTD", "betaNRI", "betaNTI", "ses_UniFrac", "RCbray")){
+					if(measure %in% c("bray", "jaccard")){
+						suppressMessages(tmp$cal_betadiv(method = NULL, unifrac = FALSE))
 					}else{
-						# check the input null model
-						if(! null.model %in% c('taxa.labels', 'richness', 'frequency', 'sample.pool', 'phylogeny.pool', 'independentswap', 'trialswap')){
-							stop("The input null.model must be one of c('taxa.labels', 'richness', 'frequency', 'sample.pool', 'phylogeny.pool', 'independentswap', 'trialswap')!")
+						if(measure %in% c("wei_unifrac", "unwei_unifrac")){
+							suppressMessages(tmp$cal_betadiv(unifrac = TRUE))
+						}else{
+							suppressMessages(tmp$cal_betadiv(unifrac = FALSE, method = measure, ...))
 						}
 					}
-					if(! measure %in% c("betaMPD", "betaMNTD", "betaNRI", "betaNTI", "ses_UniFrac", "RCbray")){
-						if(measure %in% c("bray", "jaccard")){
-							suppressMessages(tmp$cal_betadiv(method = NULL, unifrac = FALSE))
-						}else{
-							if(measure %in% c("wei_unifrac", "unwei_unifrac")){
-								suppressMessages(tmp$cal_betadiv(unifrac = TRUE))
-							}else{
-								suppressMessages(tmp$cal_betadiv(unifrac = FALSE, method = measure, ...))
-							}
-						}
-					}else{
-						trans_nullmodel_object <- trans_nullmodel$new(tmp, filter_thres = 0)
-						if(measure == "betaMPD"){
-							trans_nullmodel_object$cal_betampd(abundance.weighted = abundance.weighted)
-							res_dis <- trans_nullmodel_object$res_betampd
-						}
-						if(measure == "betaMNTD"){
-							trans_nullmodel_object$cal_betamntd(abundance.weighted = abundance.weighted, ...)
-							res_dis <- trans_nullmodel_object$res_betamntd
-						}
-						if(measure == "betaNRI"){
-							trans_nullmodel_object$cal_ses_betampd(abundance.weighted = abundance.weighted, runs = runs, null.model = null.model, iterations = iterations)
-							res_dis <- trans_nullmodel_object$res_ses_betampd
-						}
-						if(measure == "betaNTI"){
-							trans_nullmodel_object$cal_ses_betamntd(abundance.weighted = abundance.weighted, runs = runs, null.model = null.model, iterations = iterations, ...)
-							res_dis <- trans_nullmodel_object$res_ses_betamntd
-						}
-						if(measure == "RCbray"){
-							trans_nullmodel_object$cal_rcbray(runs = runs, null.model = null.model)
-							res_dis <- trans_nullmodel_object$res_rcbray
-						}
-						if(measure == "ses_UniFrac"){
-							res_dis <- private$ses_unifrac(tmp$otu_table, tmp$phylo_tree, runs = runs, weighted = abundance.weighted, null.model = null.model, iterations = iterations)
-						}
-						tmp$beta_diversity[[measure]] <- res_dis
+				}else{
+					trans_nullmodel_object <- trans_nullmodel$new(tmp, filter_thres = 0)
+					if(measure == "betaMPD"){
+						trans_nullmodel_object$cal_betampd(abundance.weighted = abundance.weighted)
+						res_dis <- trans_nullmodel_object$res_betampd
 					}
+					if(measure == "betaMNTD"){
+						trans_nullmodel_object$cal_betamntd(abundance.weighted = abundance.weighted, ...)
+						res_dis <- trans_nullmodel_object$res_betamntd
+					}
+					if(measure == "betaNRI"){
+						trans_nullmodel_object$cal_ses_betampd(abundance.weighted = abundance.weighted, runs = runs, null.model = null.model, iterations = iterations)
+						res_dis <- trans_nullmodel_object$res_ses_betampd
+					}
+					if(measure == "betaNTI"){
+						trans_nullmodel_object$cal_ses_betamntd(abundance.weighted = abundance.weighted, runs = runs, null.model = null.model, iterations = iterations, ...)
+						res_dis <- trans_nullmodel_object$res_ses_betamntd
+					}
+					if(measure == "RCbray"){
+						trans_nullmodel_object$cal_rcbray(runs = runs, null.model = null.model)
+						res_dis <- trans_nullmodel_object$res_rcbray
+					}
+					if(measure == "ses_UniFrac"){
+						feature_table <- t(tmp$otu_table)
+						res_dis <- private$ses_unifrac(feature_table, tmp$phylo_tree, runs = runs, weighted = abundance.weighted, null.model = null.model, 
+							iterations = iterations)
+					}
+					tmp$beta_diversity[[measure]] <- res_dis
 				}
 			}
 			self$measure <- measure
@@ -97,10 +104,10 @@ betaturn <- R6::R6Class(classname = "betaturn",
 			message('The distance matrix is stored in object$beta_diversity list ...')
 		},
 		#' @description
-		#' Transform sample distances within groups or between groups.
+		#' Convert sample distances within groups or between groups.
 		#'
 		#' @param group one colname of sample_table in \code{microtable} object used for group distance convertion.
-		#' @param within_group default TRUE; whether transform sample distance within groups, if FALSE, transform sample distance between any two groups.
+		#' @param within_group default TRUE; whether transform sample distance within groups? If FALSE, transform sample distances between any two groups.
 		#' @param by_group default NULL; one colname of sample_table in \code{microtable} object.
 		#'   If provided, convert distances according to the provided by_group parameter. This is especially useful for ordering and filtering values further.
 		#'   When \code{within_group = TRUE}, the result of by_group parameter is the format of paired groups.
@@ -108,7 +115,7 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @param ordered_group default NULL; a vector representing the ordered elements of \code{group} parameter; only useful when within_group = FALSE.
 		#' @param sep default TRUE; a character string to separate the group names after merging them into a new name.
 		#' @param add_cols default NULL; add several columns of sample_table to the final \code{res_group_distance} table according to the \code{by_group} column; 
-		#'   used only when \code{within_group = FALSE}.
+		#'   invoked only when \code{within_group = FALSE}.
 		#' @return \code{res_group_distance} stored in object.
 		#' @examples
 		#' \donttest{
@@ -158,49 +165,54 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		}
 	),
 	private = list(
-		# This function is used for calculating ses.unifrac
-		ses_unifrac = function(samp, tre, null.model = "taxa.labels", runs = 1000, weighted = TRUE, iterations = 1000) {
-			# samp: OTU table, rownames are OTU id; tre: phylonetic tree, .tre file
-			library(phyloseq) # download this package from bioconductor
-			if (sum(!(rownames(samp) %in% tre$tip.label)) != 0) {
+		# calculate standardized deviation of unifrac
+		ses_unifrac = function(samp, tre, null.model, runs, weighted, iterations) {
+			# samp: OTU table, rownames are sample; tre: phylonetic tree
+			if (sum(!(colnames(samp) %in% tre$tip.label)) != 0) {
 				stop("The OTU table contains unknown OTUs! OTU names\n\t\t\t\tin the OTU table and the tree should match!")
 			}
-			samp_table <- otu_table(samp, taxa_are_rows=TRUE)
 			message("Run the observed UniFrac ...")
-			betaobs <- UniFrac(phyloseq(samp_table, tre), weighted)
-			N <- dim(samp)[2]
+			betaobs <- private$cal_unifrac(samp, tre, weighted)
+			N <- nrow(samp)
 			sesbeta_matrix <- matrix(nrow = N, ncol = N)
-			rownames(sesbeta_matrix) <- colnames(sesbeta_matrix) <- colnames(samp)
+			rownames(sesbeta_matrix) <- colnames(sesbeta_matrix) <- rownames(samp)
 			betaobs_vec <- as.vector(betaobs)
 			message("Start the randomization ...")
 			if(null.model %in% c("taxa.labels", "phylogeny.pool")){
 				if(null.model == "taxa.labels"){
-					betauni_rand <- replicate(runs, UniFrac(phyloseq(samp_table, picante::tipShuffle(tre)), weighted))
+					betauni_rand <- replicate(runs, private$cal_unifrac(samp, picante::tipShuffle(tre), weighted))
 				}else{
-					betauni_rand <- replicate(runs, UniFrac(phyloseq(picante::randomizeMatrix(samp_table, null.model = "richness"), tre), weighted))
+					betauni_rand <- replicate(runs, private$cal_unifrac(picante::randomizeMatrix(samp, null.model = "richness"), tre, weighted))
 				}
 			}else{
 				if(null.model == "sample.pool"){
-					betauni_rand <- replicate(runs, UniFrac(phyloseq(picante::randomizeMatrix(samp_table, null.model = "richness", iterations = iterations), tre), weighted))
+					betauni_rand <- replicate(runs, private$cal_unifrac(picante::randomizeMatrix(samp, null.model = "richness", iterations = iterations), tre, weighted))
 				}else{
-					betauni_rand <- replicate(runs, UniFrac(phyloseq(picante::randomizeMatrix(samp_table, null.model = null.model, iterations = iterations), tre), weighted))
+					betauni_rand <- replicate(runs, private$cal_unifrac(picante::randomizeMatrix(samp, null.model = null.model, iterations = iterations), tre, weighted))
 				}
 			}
 			message("Calculate the deviation ...")
-			betauni_rand_mean <- apply(X = betauni_rand, MARGIN = 1, FUN = mean, 
-									 na.rm = TRUE)
-			betauni_rand_sd <- apply(X = betauni_rand, MARGIN = 1, FUN = sd, 
-								   na.rm = TRUE)
+			betauni_rand_mean <- apply(X = betauni_rand, MARGIN = 1, FUN = mean, na.rm = TRUE)
+			betauni_rand_sd <- apply(X = betauni_rand, MARGIN = 1, FUN = sd, na.rm = TRUE)
 			beta_obs_z <- (betaobs_vec - betauni_rand_mean)/betauni_rand_sd
 			for (i in 1:(N - 1)) {
 				x <- 1
 				for (j in (i + 1):N) {
-					sesbeta_matrix[j,i] <- beta_obs_z[x]
-					x <- x+1
+					sesbeta_matrix[j, i] <- beta_obs_z[x]
+					x <- x + 1
 				}
-				beta_obs_z <- beta_obs_z[-c(1:(N-i))]
+				beta_obs_z <- beta_obs_z[-c(1:(N - i))]
 			}
-			return(as.matrix(as.dist(sesbeta_matrix)))
+			as.matrix(as.dist(sesbeta_matrix))
+		},
+		cal_unifrac = function(eco_table, phylo_tree, weighted){
+			unifrac1 <- GUniFrac::GUniFrac(eco_table, phylo_tree, alpha = c(0, 0.5, 1))
+			unifrac2 <- unifrac1$unifracs
+			if(weighted){
+				unifrac2[,, "d_1"]
+			}else{
+				unifrac2[,, "d_UW"]
+			}
 		}
 	),
 	lock_objects = FALSE,

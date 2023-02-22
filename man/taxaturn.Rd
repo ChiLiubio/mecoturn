@@ -14,8 +14,10 @@ Analyze the 'turnover' of taxa along a defined gradient.
 
 \donttest{
 data(wheat_16S)
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"))
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
+t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
+	 ordered_group = c("S", "RS", "R"))
+t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
+ ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
 }
 
 ## ------------------------------------------------
@@ -85,7 +87,7 @@ a colname of sample_table of input dataset means the consistent change is obtain
 Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
 So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.}
 
-\item{\code{filter_thres}}{default 0; the mean abundance threshold used to filter features.}
+\item{\code{filter_thres}}{default 0; the mean abundance threshold used to filter features with low abudance.}
 }
 \if{html}{\out{</div>}}
 }
@@ -96,8 +98,10 @@ So generally \code{by_group} has a larger scale than \code{by_ID} parameter in t
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{\donttest{
 data(wheat_16S)
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"))
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
+t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
+	 ordered_group = c("S", "RS", "R"))
+t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
+ ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
 }
 }
 \if{html}{\out{</div>}}
@@ -109,9 +113,12 @@ t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", ordered_gro
 \if{html}{\out{<a id="method-taxaturn-cal_diff"></a>}}
 \if{latex}{\out{\hypertarget{method-taxaturn-cal_diff}{}}}
 \subsection{Method \code{cal_diff()}}{
-Differential test of taxonomic abudance across groups
+Differential test of taxonomic abundance across groups
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{taxaturn$cal_diff(method = c("wilcox", "t.test", "betareg", "lme")[1], ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{taxaturn$cal_diff(
+  method = c("wilcox", "t.test", "betareg", "lme", "anova")[1],
+  ...
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -123,6 +130,7 @@ Differential test of taxonomic abudance across groups
   \item{\strong{'t.test'}}{Student's t-Test for all paired groups}
   \item{\strong{'betareg'}}{Beta Regression based on the \code{betareg} package}
   \item{\strong{'lme'}}{lme: Linear Mixed Effect Model based on the \code{lmerTest} package}
+  \item{\strong{'anova'}}{one-way or multi-way anova}
 }}
 
 \item{\code{...}}{parameters passed to \code{trans_diff$new}.}
@@ -130,7 +138,7 @@ Differential test of taxonomic abudance across groups
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-\code{res_change}, updated in the object.
+\code{res_change} or \code{res_diff}.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}

@@ -20,5 +20,3 @@ devtools::install_github("ChiLiubio/mecoturn")
 We welcome any contribution \! 
 Any idea/suggestion will be considered.
 By participating in this project you agree to abide by the terms outlined in the [Contributor Code of Conduct](CONDUCT.md).
-
-
