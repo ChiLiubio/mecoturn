@@ -4,7 +4,8 @@
 \alias{betaturn}
 \title{Analyze the 'turnover' of microbial communities.}
 \description{
-Analyze the 'turnover' of microbial communities, i.e. beta-diversity along a gradient.
+Analyze the 'turnover' of microbial communities, i.e. beta-diversity along a gradient <doi:10.1111/j.1461-0248.2010.01552.x>.
+The workflow consists of the steps of dissimilarity matrix generation, matrix conversion, differential test and visualization.
 }
 \examples{
 
@@ -19,25 +20,19 @@ b1 <- betaturn$new(wheat_16S, measure = "bray")
 ## Method `betaturn$cal_group_distance`
 ## ------------------------------------------------
 
-\donttest{
 b1$cal_group_distance(group = "Type", within_group = FALSE, by_group = "Plant_ID")
-}
 
 ## ------------------------------------------------
 ## Method `betaturn$cal_group_distance_diff`
 ## ------------------------------------------------
 
-\donttest{
 b1$cal_group_distance_diff(method = "wilcox")
-}
 
 ## ------------------------------------------------
 ## Method `betaturn$plot_group_distance`
 ## ------------------------------------------------
 
-\donttest{
 b1$plot_group_distance()
-}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -151,9 +146,7 @@ invoked only when \code{within_group = FALSE}.}
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\donttest{
-b1$cal_group_distance(group = "Type", within_group = FALSE, by_group = "Plant_ID")
-}
+\preformatted{b1$cal_group_distance(group = "Type", within_group = FALSE, by_group = "Plant_ID")
 }
 \if{html}{\out{</div>}}
 
@@ -181,9 +174,7 @@ Differential test of distances among groups.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\donttest{
-b1$cal_group_distance_diff(method = "wilcox")
-}
+\preformatted{b1$cal_group_distance_diff(method = "wilcox")
 }
 \if{html}{\out{</div>}}
 
@@ -211,9 +202,7 @@ Plot the distance between samples within or between groups.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\donttest{
-b1$plot_group_distance()
-}
+\preformatted{b1$plot_group_distance()
 }
 \if{html}{\out{</div>}}
 

@@ -2,11 +2,19 @@
 
 Deciphering microbial turnover along a gradient
 
-![](https://img.shields.io/badge/Test-v0.1.0-red.svg)
+[![CRAN](https://www.r-pkg.org/badges/version/mecoturn)](https://cran.r-project.org/web/packages/mecoturn/index.html)
+[![CRAN](https://cranlogs.r-pkg.org/badges/grand-total/mecoturn)](https://cran.r-project.org/web/packages/mecoturn/index.html)
+![](https://img.shields.io/badge/Release-v0.1.0-blue.svg) ![](https://img.shields.io/badge/Test-v0.1.1-red.svg)
 
 ## Install mecoturn
 
-Install the latest development version from github.
+Install mecoturn package from CRAN.
+
+```r
+install.packages("mecoturn")
+```
+
+Or install the latest development version from github.
 
 ```r
 # If devtools package is not installed, first install it

@@ -1,7 +1,8 @@
 #' @title Analyze the 'turnover' of microbial communities.
 #' 
 #' @description
-#' Analyze the 'turnover' of microbial communities, i.e. beta-diversity along a gradient.
+#' Analyze the 'turnover' of microbial communities, i.e. beta-diversity along a gradient <doi:10.1111/j.1461-0248.2010.01552.x>.
+#' The workflow consists of the steps of dissimilarity matrix generation, matrix conversion, differential test and visualization.
 #'
 #' @export
 betaturn <- R6::R6Class(classname = "betaturn",
@@ -118,9 +119,7 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#'   invoked only when \code{within_group = FALSE}.
 		#' @return \code{res_group_distance} stored in object.
 		#' @examples
-		#' \donttest{
 		#' b1$cal_group_distance(group = "Type", within_group = FALSE, by_group = "Plant_ID")
-		#' }
 		cal_group_distance = function(group, within_group = TRUE, by_group = NULL, ordered_group = NULL, sep = " vs ", add_cols = NULL){
 			dataset <- self$dataset
 			measure <- self$measure
@@ -142,9 +141,7 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @param ... parameters passed to \code{cal_group_distance_diff} function of \code{\link{trans_beta}} class.
 		#' @return \code{res_group_distance_diff} stored in object.
 		#' @examples
-		#' \donttest{
 		#' b1$cal_group_distance_diff(method = "wilcox")
-		#' }
 		cal_group_distance_diff = function(...){
 			self$tmp_trans_beta$res_group_distance <- self$res_group_distance
 			suppressMessages(self$tmp_trans_beta$cal_group_distance_diff(...))
@@ -157,9 +154,7 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @param ... parameters passed to \code{plot_group_distance} function of \code{\link{trans_beta}} class.
 		#' @return \code{ggplot}.
 		#' @examples
-		#' \donttest{
 		#' b1$plot_group_distance()
-		#' }
 		plot_group_distance = function(...){
 			self$tmp_trans_beta$plot_group_distance(...)
 		}

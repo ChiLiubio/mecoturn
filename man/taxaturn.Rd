@@ -5,6 +5,7 @@
 \title{Analyze the 'turnover' of taxa.}
 \description{
 Analyze the 'turnover' of taxa along a defined gradient.
+The workflow of taxaturn class includes the taxonomic abundance calculation, abundance transformation, abundance change summary, statistical analysis and visualization.
 }
 \examples{
 
@@ -12,30 +13,21 @@ Analyze the 'turnover' of taxa along a defined gradient.
 ## Method `taxaturn$new`
 ## ------------------------------------------------
 
-\donttest{
 data(wheat_16S)
 t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
-	 ordered_group = c("S", "RS", "R"))
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
  ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
-}
 
 ## ------------------------------------------------
 ## Method `taxaturn$cal_diff`
 ## ------------------------------------------------
 
-\donttest{
 t1$cal_diff(method = "wilcox")
-t1$cal_diff(method = "betareg", formula = "Type")
-}
 
 ## ------------------------------------------------
 ## Method `taxaturn$plot`
 ## ------------------------------------------------
 
-\donttest{
 t1$plot()
-}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -67,9 +59,9 @@ t1$plot()
 \describe{
 \item{\code{dataset}}{the object of \code{\link{microtable}} class.}
 
-\item{\code{taxa_level}}{default "Phylum"; taxonomic rank name, such as "Genus".
-If the provided taxonomic name is not a colname in tax_table of input dataset, 
-the function will use the features in input \code{microtable$otu_table} automatically.}
+\item{\code{taxa_level}}{default "Phylum"; taxonomic rank name, such as "Genus". An integer is also acceptable.
+If the provided taxa_level is not found in \code{taxa_abund} list,
+the function will invoke the \code{cal_abund} function to obtain the relative abudance automatically.}
 
 \item{\code{group}}{sample group used for the selection; a colname of input \code{microtable$sample_table}.}
 
@@ -96,13 +88,9 @@ So generally \code{by_group} has a larger scale than \code{by_ID} parameter in t
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\donttest{
-data(wheat_16S)
-t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
-	 ordered_group = c("S", "RS", "R"))
+\preformatted{data(wheat_16S)
 t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
  ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
-}
 }
 \if{html}{\out{</div>}}
 
@@ -142,10 +130,7 @@ Differential test of taxonomic abundance across groups
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\donttest{
-t1$cal_diff(method = "wilcox")
-t1$cal_diff(method = "betareg", formula = "Type")
-}
+\preformatted{t1$cal_diff(method = "wilcox")
 }
 \if{html}{\out{</div>}}
 
@@ -227,9 +212,7 @@ ggplot2 plot.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\donttest{
-t1$plot()
-}
+\preformatted{t1$plot()
 }
 \if{html}{\out{</div>}}
 

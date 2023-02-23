@@ -2,14 +2,15 @@
 #' 
 #' @description
 #' Analyze the 'turnover' of taxa along a defined gradient.
+#' The workflow of taxaturn class includes the taxonomic abundance calculation, abundance transformation, abundance change summary, statistical analysis and visualization.
 #'
 #' @export
 taxaturn <- R6::R6Class(classname = "taxaturn",
 	public = list(
 		#' @param dataset the object of \code{\link{microtable}} class.
-		#' @param taxa_level default "Phylum"; taxonomic rank name, such as "Genus".
-		#' 	  If the provided taxonomic name is not a colname in tax_table of input dataset, 
-		#' 	  the function will use the features in input \code{microtable$otu_table} automatically.
+		#' @param taxa_level default "Phylum"; taxonomic rank name, such as "Genus". An integer is also acceptable.
+		#' 	  If the provided taxa_level is not found in \code{taxa_abund} list,
+		#' 	  the function will invoke the \code{cal_abund} function to obtain the relative abudance automatically.
 		#' @param group sample group used for the selection; a colname of input \code{microtable$sample_table}.
 		#' @param ordered_group a vector representing the ordered elements of \code{group} parameter.
 		#' @param by_ID default NULL; a column of sample_table used to obtain the consistent change along provided elements.
@@ -25,13 +26,9 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' @param filter_thres default 0; the mean abundance threshold used to filter features with low abudance.
 		#' @return \code{res_change} and \code{res_abund}.
 		#' @examples
-		#' \donttest{
 		#' data(wheat_16S)
 		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
-		#' 	 ordered_group = c("S", "RS", "R"))
-		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
 		#'	 ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
-		#' }
 		initialize = function(dataset, taxa_level = "Phylum", group, ordered_group, by_ID = NULL, by_group = NULL, filter_thres = 0){
 			if(!inherits(dataset, "microtable")){
 				stop("Input dataset must be microtable class!")
@@ -54,17 +51,36 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 					stop("Provided by_group parameter is not the colname of sample_table!")
 				}
 			}
+			if(is.null(taxa_level)){
+				stop("The input taxa_level should not be NULL!")
+			}else{
+				if(length(taxa_level) > 1){
+					stop("The input taxa_level must only have one!")
+				}else{
+					if(is.numeric(taxa_level)){
+						if(taxa_level > ncol(tmp_dataset$tax_table)){
+							stop("The input taxa_level is larger than the column number of tax_table!")
+						}else{
+							taxa_level <- colnames(tmp_dataset$tax_table)[taxa_level]
+							message("Rename taxa_level: ", taxa_level, " ...")
+						}
+					}else{
+						if(!taxa_level %in% colnames(tmp_dataset$tax_table)){
+							if(!taxa_level %in% names(tmp_dataset$taxa_abund)){
+								stop("The input taxa_level is not found in the colnames of tax_table and names of taxa_abund list!")
+							}
+						}
+					}
+				}
+			}
 			# generate abudance table
 			if(is.null(tmp_dataset$taxa_abund)){
 				message("No taxa_abund found. First calculate it with cal_abund function ...")
-				suppressMessages(tmp_dataset$cal_abund())
-			}
-			# make sure taxa_level can be extracted from taxa_abund
-			if(! taxa_level %in% names(tmp_dataset$taxa_abund)){
-				# recalculate taxa_abund with rownames as features in otu_table
-				message("Provided taxa_level: ", taxa_level, " not in tax_table of dataset; use features in otu_table ...")
-				tmp_dataset$add_rownames2taxonomy(use_name = taxa_level)
-				suppressMessages(tmp_dataset$cal_abund(rel = TRUE))
+				suppressMessages(tmp_dataset$cal_abund(select_cols = taxa_level))
+			}else{
+				if(!taxa_level %in% names(tmp_dataset$taxa_abund)){
+					suppressMessages(tmp_dataset$cal_abund(select_cols = taxa_level))
+				}
 			}
 			abund_table <- tmp_dataset$taxa_abund[[taxa_level]]
 			if(filter_thres > 0){
@@ -148,10 +164,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' @param ... parameters passed to \code{trans_diff$new}.
 		#' @return \code{res_change} or \code{res_diff}.
 		#' @examples
-		#' \donttest{
 		#' t1$cal_diff(method = "wilcox")
-		#' t1$cal_diff(method = "betareg", formula = "Type")
-		#' }
 		cal_diff = function(method = c("wilcox", "t.test", "betareg", "lme", "anova")[1], ...){
 			ordered_group <- self$ordered_group
 			group <- self$group
@@ -250,9 +263,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' @param ... parameters passed to \code{geom_smooth} when 'smooth' is in plot_type parameter.
 		#' @return ggplot2 plot. 
 		#' @examples
-		#' \donttest{
 		#' t1$plot()
-		#' }
 		plot = function(
 			select_taxon = NULL,
 			color_values = RColorBrewer::brewer.pal(8, "Dark2"),
@@ -282,11 +293,11 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 				plot_data$Taxa %<>% gsub(".*\\|", "", .)
 			}
 			if(is.null(select_taxon)){
-				message("No select_taxon provided! Select the taxon with the highest abudance ...")
 				# sort abudance of taxa for the selection
 				plot_data$total_abund <- plot_data$N * plot_data$Mean
 				taxa_abund <- tapply(plot_data$total_abund, plot_data$Taxa, sum) %>% sort(decreasing = TRUE)
 				use_taxa_name <- names(taxa_abund[1])
+				message("No select_taxon provided! Select the taxon with the highest abudance: ", use_taxa_name, " ...")
 			}else{
 				if(length(select_taxon) > 1){
 					message("Provided select_taxon has multiple elements! Select the first one ...")
