@@ -14,13 +14,9 @@ Install mecoturn package from CRAN.
 install.packages("mecoturn")
 ```
 
-Or install the latest development version from github.
+## Tutorial
 
-```r
-# If devtools package is not installed, first install it
-install.packages("devtools")
-devtools::install_github("ChiLiubio/mecoturn")
-```
+https://chiliubio.github.io/microeco_tutorial/mecoturn-package.html
 
 
 ## Contributing

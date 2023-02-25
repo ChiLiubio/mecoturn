@@ -143,7 +143,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			message('Taxa abundance data is stored in object$res_abund ...')
 			self$res_change <- res_change
 			message('Abundance change data is stored in object$res_change ...')
-			self$tmp_dataset <- tmp_dataset
+			self$dataset <- tmp_dataset
 			self$group <- group
 			self$ordered_group <- ordered_group
 			self$by_ID <- by_ID
@@ -172,7 +172,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			by_group <- self$by_group
 			res_change <- self$res_change
 			taxa_level <- self$taxa_level
-			tmp_dataset <- self$tmp_dataset
+			tmp_dataset <- self$dataset
 			method <- match.arg(method, c("wilcox", "t.test", "betareg", "lme", "anova"))
 			
 			if(method %in% c("wilcox", "t.test")){
