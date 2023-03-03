@@ -24,7 +24,13 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'   Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
 		#'   So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.
 		#' @param filter_thres default 0; the mean abundance threshold used to filter features with low abudance.
-		#' @return \code{res_change} and \code{res_abund}.
+		#' @return \code{res_abund}, \code{res_change_pair} and \code{res_change}:
+		#' \describe{
+		#'   \item{\code{res_abund}}{The Mean, SD or SE of abundances for all the samples or each group.
+		#'      Mean: mean of abudances; SD: standard deviation; SE: standard error.}
+		#'   \item{\code{res_change_pair}}{The difference value of abudances between two niches, i.e. the latter minus the former.}
+		#'   \item{\code{res_change}}{The summary of the abudance change results in res_change_pair.}
+		#' }
 		#' @examples
 		#' data(wheat_16S)
 		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 

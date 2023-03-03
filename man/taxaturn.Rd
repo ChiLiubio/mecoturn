@@ -84,7 +84,13 @@ So generally \code{by_group} has a larger scale than \code{by_ID} parameter in t
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-\code{res_change} and \code{res_abund}.
+\code{res_abund}, \code{res_change_pair} and \code{res_change}:
+\describe{
+  \item{\code{res_abund}}{The Mean, SD or SE of abundances for all the samples or each group.
+     Mean: mean of abudances; SD: standard deviation; SE: standard error.}
+  \item{\code{res_change_pair}}{The difference value of abudances between two niches, i.e. the latter minus the former.}
+  \item{\code{res_change}}{The summary of the abudance change results in res_change_pair.}
+}
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
