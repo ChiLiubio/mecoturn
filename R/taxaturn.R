@@ -73,7 +73,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 					}
 				}
 			}
-			# generate abudance table
+			# generate abundance table
 			if(is.null(tmp_dataset$taxa_abund)){
 				message("No taxa_abund found. First calculate it with cal_abund function ...")
 				suppressMessages(tmp_dataset$cal_abund(select_cols = taxa_level))
@@ -97,52 +97,85 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			}else{
 				res_abund <- private$abund_change(abund_table = abund_table, sampleinfo = tmp_dataset$sample_table, group = group, by_group = by_ID)
 			}
-			res_change <- data.frame(Taxa = unique(res_abund$Taxa))
+			res_change <- res_change_pair_raw <- data.frame(Taxa = unique(res_abund$Taxa))
 			res_change$Direction <- paste0(ordered_group, collapse = " -> ")
+			change_pair_names <- lapply(seq_along(ordered_group)[-1], function(x){paste0(ordered_group[x - 1], " -> ", ordered_group[x])}) %>% unlist
 			
 			if(is.null(by_ID)){
 				if(is.null(by_group)){
-					res_change$Change <- private$chang_func(abund_table = res_abund, group = group, ordered_group = ordered_group)
+					tmp_change_abund <- private$chang_abund(abund_table = res_abund, group = group, ordered_group = ordered_group)
+					tmp	<- do.call(rbind, tmp_change_abund)
+					colnames(tmp) <- change_pair_names
+					res_change_pair <- cbind(res_change_pair_raw, tmp)
+					res_change$Change <- private$chang_trend(tmp_change_abund)
 				}else{
+					res_change_pair <- data.frame()
 					for(i in unique(res_abund[, by_group])){
 						res_abund_bygroup <- res_abund[res_abund[, by_group] == i, ]
-						res_change[, paste0(i, " | Change")] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+						tmp_change_abund <- private$chang_abund(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+						tmp	<- do.call(rbind, tmp_change_abund)
+						colnames(tmp) <- change_pair_names
+						res_change_pair_tmp <- cbind(i, res_change_pair_raw, tmp)
+						colnames(res_change_pair_tmp)[1] <- by_group
+						res_change_pair <- rbind(res_change_pair, res_change_pair_tmp)
+						res_change[, paste0(i, " | Change")] <- private$chang_trend(tmp_change_abund)
 					}
 				}
 			}else{
 				if(is.null(by_group)){
-					tmp <- data.frame(Taxa = unique(res_abund$Taxa))
+					tmp_res_change <- data.frame(Taxa = unique(res_abund$Taxa))
+					res_change_pair <- data.frame()
 					for(i in unique(res_abund[, by_ID])){
 						res_abund_bygroup <- res_abund[res_abund[, by_ID] == i, ]
-						tmp[, paste0(i, " | Change")] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+						tmp_change_abund <- private$chang_abund(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+						tmp	<- do.call(rbind, tmp_change_abund)
+						colnames(tmp) <- change_pair_names
+						res_change_pair_tmp <- cbind(i, res_change_pair_raw, tmp)
+						colnames(res_change_pair_tmp)[1] <- by_ID
+						res_change_pair <- rbind(res_change_pair, res_change_pair_tmp)
+						tmp_res_change[, paste0(i, " | Change")] <- private$chang_trend(tmp_change_abund)
 					}
-					res_change$Change <- apply(tmp[, -1, drop = FALSE], 1, function(x){ifelse(length(unique(x)) == 1, unique(x), "")})
+					res_change$Change <- apply(tmp_res_change[, -1, drop = FALSE], 1, function(x){ifelse(length(unique(x)) == 1, unique(x), "")})
 				}else{
+					res_change_pair <- data.frame()
 					if(by_group == by_ID){
 						for(i in unique(res_abund[, by_ID])){
 							res_abund_bygroup <- res_abund[res_abund[, by_ID] == i, ]
-							res_change[, paste0(i, " | Change")] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+							tmp_change_abund <- private$chang_abund(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+							tmp	<- do.call(rbind, tmp_change_abund)
+							colnames(tmp) <- change_pair_names
+							res_change_pair_tmp <- cbind(i, res_change_pair_raw, tmp)
+							colnames(res_change_pair_tmp)[1] <- by_ID
+							res_change_pair <- rbind(res_change_pair, res_change_pair_tmp)
+							res_change[, paste0(i, " | Change")] <- private$chang_trend(tmp_change_abund)
 						}
 					}else{
 						map_table <- unique(tmp_dataset$sample_table[, c(by_ID, by_group)])
 						rownames(map_table) <- map_table[, by_ID]
 						res_abund[, by_group] <- map_table[res_abund[, by_ID], by_group]
 						for(j in unique(res_abund[, by_group])){
-							tmp <- data.frame(Taxa = unique(res_abund$Taxa))
+							tmp_res_change <- data.frame(Taxa = unique(res_abund$Taxa))
 							for(i in unique(res_abund[res_abund[, by_group] == j, by_ID])){
 								res_abund_bygroup <- res_abund[res_abund[, by_ID] == i, ]
-								tmp[, i] <- private$chang_func(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+								tmp_change_abund <- private$chang_abund(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
+								tmp	<- do.call(rbind, tmp_change_abund)
+								colnames(tmp) <- change_pair_names
+								res_change_pair_tmp <- cbind(i, res_change_pair_raw, tmp)
+								colnames(res_change_pair_tmp)[1] <- by_ID
+								res_change_pair <- rbind(res_change_pair, res_change_pair_tmp)
+								tmp_res_change[, i] <- private$chang_trend(tmp_change_abund)
 							}
-							res_change[, paste0(j, " | Change")] <- apply(tmp[, -1, drop = FALSE], 1, function(x){ifelse(length(unique(x)) == 1, unique(x), "")})
+							res_change[, paste0(j, " | Change")] <- apply(tmp_res_change[, -1, drop = FALSE], 1, function(x){ifelse(length(unique(x)) == 1, unique(x), "")})
 						}
 					}
 				}
 			}
-			
 			self$res_abund <- res_abund
 			message('Taxa abundance data is stored in object$res_abund ...')
+			self$res_change_pair <- res_change_pair
+			message('Abundance change along groups is stored in object$res_change_pair ...')
 			self$res_change <- res_change
-			message('Abundance change data is stored in object$res_change ...')
+			message('Abundance change summary is stored in object$res_change ...')
 			self$dataset <- tmp_dataset
 			self$group <- group
 			self$ordered_group <- ordered_group
@@ -368,18 +401,23 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 				microeco:::summarySE_inter(., measurevar = "Abund", groupvars = c("Taxa", group, by_group))
 			res_abund
 		},
-		chang_func = function(abund_table, group, ordered_group){
+		chang_abund = function(abund_table, group, ordered_group){
 			lapply(unique(abund_table$Taxa), function(x){
 				abund_sub <- abund_table[abund_table$Taxa == x, ]
 				abund_sub <- abund_sub[match(abund_sub[, group], ordered_group), ]
 				lagged_abund <- diff(abund_sub$Mean, lag = 1)
-				if(all(lagged_abund < 0)){
+				lagged_abund
+			})
+		},
+		chang_trend = function(input_abund){
+			lapply(input_abund, function(x){
+				if(all(x < 0)){
 					"Decrease"
 				}else{
-					if(all(lagged_abund > 0)){
+					if(all(x > 0)){
 						"Increase"
 					}else{
-						paste0(sapply(lagged_abund, private$get_symbol), collapse = "|")
+						paste0(sapply(x, private$get_symbol), collapse = "|")
 					}
 				}
 			}) %>% unlist
