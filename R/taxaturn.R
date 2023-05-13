@@ -47,6 +47,9 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			if(!all(ordered_group %in% tmp_dataset$sample_table[, group])){
 				stop("Part of elements in ordered_group are not found in sample_table[, ", group, "]!")
 			}
+			# remove useless groups
+			tmp_dataset$sample_table %<>% {.[.[, group] %in% ordered_group, ]}
+			tmp_dataset$tidy_dataset()
 			if(!is.null(by_ID)){
 				if(!by_ID %in% colnames(tmp_dataset$sample_table)){
 					stop("Provided by_ID parameter is not the colname of sample_table!")
@@ -133,6 +136,9 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 					res_change_pair <- data.frame()
 					for(i in unique(res_abund[, by_ID])){
 						res_abund_bygroup <- res_abund[res_abund[, by_ID] == i, ]
+						if(length(unique(res_abund_bygroup[, group])) < length(ordered_group)){
+							next
+						}
 						tmp_change_abund <- private$chang_abund(abund_table = res_abund_bygroup, group = group, ordered_group = ordered_group)
 						tmp	<- do.call(rbind, tmp_change_abund)
 						colnames(tmp) <- change_pair_names
