@@ -24,7 +24,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'   Note that the by_group can be same with by_ID, in which the final change is the result of each element in \code{by_group}.
 		#'   So generally \code{by_group} has a larger scale than \code{by_ID} parameter in terms of the sample numbers in each element.
 		#' @param filter_thres default 0; the mean abundance threshold used to filter features with low abudance.
-		#' @return \code{res_abund}, \code{res_change_pair} and \code{res_change}:
+		#' @return \code{res_abund}, \code{res_change_pair} and \code{res_change} in the object:
 		#' \describe{
 		#'   \item{\code{res_abund}}{The Mean, SD or SE of abundances for all the samples or each group.
 		#'      Mean: mean of abudances; SD: standard deviation; SE: standard error.}
@@ -213,12 +213,12 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#'     	  The significance of 'Estimate' in each term of fixed factors comes from the model.
 		#'     	  }
 		#'   }
-		#' @param og2num default FALSE; whether convert ordered groups to integer numbers when method is "lme" or "glmm".
+		#' @param group2num default FALSE; whether convert ordered groups to integer numbers when method is "lme" or "glmm".
 		#' @param ... parameters passed to \code{trans_diff$new}.
-		#' @return \code{res_change} or \code{res_diff}.
+		#' @return \code{res_change} or \code{res_diff} in the object.
 		#' @examples
 		#' t1$cal_diff(method = "wilcox")
-		cal_diff = function(method = c("wilcox", "t.test", "anova", "betareg", "lme", "glmm")[1], og2num = FALSE, ...){
+		cal_diff = function(method = c("wilcox", "t.test", "anova", "betareg", "lme", "glmm")[1], group2num = FALSE, ...){
 			ordered_group <- self$ordered_group
 			group <- self$group
 			by_ID <- self$by_ID
@@ -284,7 +284,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 				message('The results are stored in object$res_diff ...')
 			}
 			if(method %in% c("anova", "lme")){
-				if(method == "lme" & og2num){
+				if(method == "lme" & group2num){
 					tmp$sample_table[, group] %<>% factor(levels = ordered_group) %>% as.numeric
 				}
 				tmp <- clone(tmp_dataset)
@@ -298,7 +298,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 			}
 			if(method == "glmm"){
 				tmp <- clone(tmp_dataset)
-				if(og2num){
+				if(group2num){
 					tmp$sample_table[, group] %<>% factor(levels = ordered_group) %>% as.numeric
 				}
 				tmp$taxa_abund[[taxa_level]] %<>% {. + 1e-10} %>% {./(1 + 2e-10)}

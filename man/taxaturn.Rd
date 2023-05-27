@@ -84,7 +84,7 @@ So generally \code{by_group} has a larger scale than \code{by_ID} parameter in t
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-\code{res_abund}, \code{res_change_pair} and \code{res_change}:
+\code{res_abund}, \code{res_change_pair} and \code{res_change} in the object:
 \describe{
   \item{\code{res_abund}}{The Mean, SD or SE of abundances for all the samples or each group.
      Mean: mean of abudances; SD: standard deviation; SE: standard error.}
@@ -111,7 +111,7 @@ Differential test of taxonomic abundance across groups
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{taxaturn$cal_diff(
   method = c("wilcox", "t.test", "anova", "betareg", "lme", "glmm")[1],
-  og2num = FALSE,
+  group2num = FALSE,
   ...
 )}\if{html}{\out{</div>}}
 }
@@ -135,14 +135,14 @@ Differential test of taxonomic abundance across groups
         }
 }}
 
-\item{\code{og2num}}{default FALSE; whether convert ordered groups to integer numbers when method is "lme" or "glmm".}
+\item{\code{group2num}}{default FALSE; whether convert ordered groups to integer numbers when method is "lme" or "glmm".}
 
 \item{\code{...}}{parameters passed to \code{trans_diff$new}.}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-\code{res_change} or \code{res_diff}.
+\code{res_change} or \code{res_diff} in the object.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
