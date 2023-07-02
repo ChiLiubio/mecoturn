@@ -4,6 +4,11 @@
 #' @importFrom magrittr %<>%
 #' @importFrom magrittr %>%
 #' @importFrom ggpubr ggboxplot
+#' @importFrom agricolae duncan.test
+#' @importFrom lmerTest ranova
+#' @importFrom betareg betareg
+#' @importFrom glmmTMB glmmTMB
+#' @importFrom GUniFrac GUniFrac
 NULL
 
 # define globalVariables
