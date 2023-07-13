@@ -11,8 +11,8 @@ Maintainer: Chi Liu <liuchi0426@126.com>
 Description: Two pipelines are provided to study microbial turnover along a gradient, including the beta diversity and microbial abundance change. The 'betaturn' class consists of the steps of community dissimilarity matrix generation, matrix conversion, differential test and visualization. The workflow of 'taxaturn' class includes the taxonomic abundance calculation, abundance transformation, abundance change summary, statistical analysis and visualization. Multiple statistical approaches can contribute to the analysis of microbial turnover.
 URL: https://github.com/ChiLiubio/mecoturn
 Depends: R (>= 3.5.0)
-Imports: R6, ggplot2 (>= 3.4.0), microeco (>= 0.19.0), GUniFrac, magrittr, ggpubr, agricolae, lmerTest, betareg, glmmTMB
-Suggests: ape
+Imports: R6, ggplot2 (>= 3.4.0), microeco (>= 0.19.0), GUniFrac, magrittr, ggpubr, lmerTest, betareg, glmmTMB
+Suggests: ape, agricolae
 License: GPL-3
 LazyData: true
 Encoding: UTF-8
