@@ -91,14 +91,17 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 					suppressMessages(tmp_dataset$cal_abund(select_cols = taxa_level))
 				}
 			}
-			abund_table <- tmp_dataset$taxa_abund[[taxa_level]]
+			abund_table <- tmp_dataset$taxa_abund[[taxa_level]] %>% 
+				{.[!grepl("__$|uncultured$|Incertae..edis$|_sp$", rownames(.), ignore.case = TRUE), ]}
+
 			if(filter_thres > 0){
 				abund_table %<>% .[apply(., 1, mean) > filter_thres, ]
 				if(nrow(abund_table) == 0){
 					stop("Please check the filter_thres parameter! No feature remained after filtering!")
 				}
+				# this will be used again in the cal_diff function
+				tmp_dataset$taxa_abund[[taxa_level]] <- abund_table
 			}
-			abund_table %<>% {.[!grepl("__$|uncultured$|Incertae..edis$|_sp$", rownames(.), ignore.case = TRUE), ]}
 
 			# transform the abundance along by_ID or across by_group
 			if(is.null(by_ID)){
