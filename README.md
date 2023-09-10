@@ -4,7 +4,7 @@ Deciphering microbial turnover along a gradient
 
 [![CRAN](https://www.r-pkg.org/badges/version/mecoturn)](https://cran.r-project.org/web/packages/mecoturn/index.html)
 [![CRAN](https://cranlogs.r-pkg.org/badges/grand-total/mecoturn)](https://cran.r-project.org/web/packages/mecoturn/index.html)
-![](https://img.shields.io/badge/Release-v0.2.0-blue.svg) ![](https://img.shields.io/badge/Test-v0.2.1-red.svg)
+![](https://img.shields.io/badge/Release-v0.3.0-blue.svg) ![](https://img.shields.io/badge/Test-v0.3.1-red.svg)
 
 
 ## Install mecoturn

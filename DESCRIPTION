@@ -1,7 +1,7 @@
 Package: mecoturn
 Type: Package
 Title: Decipher Microbial Turnover along a Gradient
-Version: 0.2.1
+Version: 0.3.1
 Authors@R: c(person("Chi", "Liu", role = c("aut", "cre"), email = "liuchi0426@126.com"),
               person("Xiangzhen", "Li", role = "ctb", email = "lixz@cib.ac.cn"),
               person("Minjie", "Yao", role = "ctb", email = "yaomj@fafu.edu.cn")
@@ -11,13 +11,13 @@ Maintainer: Chi Liu <liuchi0426@126.com>
 Description: Two pipelines are provided to study microbial turnover along a gradient, including the beta diversity and microbial abundance change. The 'betaturn' class consists of the steps of community dissimilarity matrix generation, matrix conversion, differential test and visualization. The workflow of 'taxaturn' class includes the taxonomic abundance calculation, abundance transformation, abundance change summary, statistical analysis and visualization. Multiple statistical approaches can contribute to the analysis of microbial turnover.
 URL: https://github.com/ChiLiubio/mecoturn
 Depends: R (>= 3.5.0)
-Imports: R6, ggplot2 (>= 3.4.0), microeco (>= 0.19.0), GUniFrac, magrittr, ggpubr, lmerTest, betareg, glmmTMB
+Imports: R6, ggplot2 (>= 3.4.0), microeco (>= 0.20.0), GUniFrac, magrittr, ggpubr, lmerTest, betareg, glmmTMB
 Suggests: ape, agricolae
 License: GPL-3
 LazyData: true
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2023-07-02
+Packaged: 2023-09-10
 Repository: CRAN
-Date/Publication: 2022-07-02
+Date/Publication: 2022-09-10
 RoxygenNote: 7.2.3
