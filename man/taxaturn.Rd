@@ -15,7 +15,7 @@ The workflow of taxaturn class includes the taxonomic abundance calculation, abu
 
 data(wheat_16S)
 t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
- ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
+ ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID", filter_thres = 0.01)
 
 ## ------------------------------------------------
 ## Method `taxaturn$cal_diff`
@@ -96,7 +96,7 @@ So generally \code{by_group} has a larger scale than \code{by_ID} parameter in t
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{data(wheat_16S)
 t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
- ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
+ ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID", filter_thres = 0.01)
 }
 \if{html}{\out{</div>}}
 

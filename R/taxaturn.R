@@ -34,7 +34,7 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		#' @examples
 		#' data(wheat_16S)
 		#' t1 <- taxaturn$new(wheat_16S, taxa_level = "Phylum", group = "Type", 
-		#'	 ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID")
+		#'	 ordered_group = c("S", "RS", "R"), by_ID = "Plant_ID", filter_thres = 0.01)
 		initialize = function(dataset, taxa_level = "Phylum", group, ordered_group, by_ID = NULL, by_group = NULL, filter_thres = 0){
 			if(!inherits(dataset, "microtable")){
 				stop("Input dataset must be microtable class!")
