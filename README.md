@@ -20,6 +20,11 @@ install.packages("mecoturn")
 https://chiliubio.github.io/microeco_tutorial/mecoturn-package.html
 
 
+## Citation
+Liu, C., Wang, J., Wang, Y. et al. Crop rotation and fertilization shape the microbiomes of maize rhizosphere soil with distinct mechanisms. Plant Soil (2024). 
+https://doi.org/10.1007/s11104-024-06847-9
+
+
 ## Contributing
 
 We welcome any contribution \! 
