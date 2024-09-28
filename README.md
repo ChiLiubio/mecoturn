@@ -16,6 +16,11 @@ install.packages("mecoturn")
 ```
 
 
+## Tutorial
+
+https://chiliubio.github.io/microeco_tutorial/mecoturn-package.html
+
+
 
 ## Contributing
 
