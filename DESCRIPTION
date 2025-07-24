@@ -1,7 +1,7 @@
 Package: mecoturn
 Type: Package
 Title: Decipher Microbial Turnover along a Gradient
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(person("Chi", "Liu", role = c("aut", "cre"), email = "liuchi0426@126.com"),
               person("Xiangzhen", "Li", role = "ctb", email = "lixz@cib.ac.cn"),
               person("Minjie", "Yao", role = "ctb", email = "yaomj@fafu.edu.cn")
@@ -17,7 +17,7 @@ License: GPL-3
 LazyData: true
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2023-09-10
+Packaged: 2025-07-24
 Repository: CRAN
-Date/Publication: 2022-09-10
-RoxygenNote: 7.2.3
+Date/Publication: 2025-07-24
+RoxygenNote: 7.3.2
