@@ -7,7 +7,7 @@
 #' @export
 betaturn <- R6::R6Class(classname = "betaturn",
 	public = list(
-		#' @param dataset the object of \code{\link{microtable}} class.
+		#' @param dataset the object of \code{microtable} class of microeco package.
 		#' @param measure default "bray"; beta diversity dissimilarity metric; 
 		#' 	 must be one of \code{c("bray", "jaccard", "wei_unifrac", "unwei_unifrac", "betaMPD", "betaMNTD", "betaNRI", "betaNTI", "ses_UniFrac", "RCbray")}
 		#' 	 or other options in parameter \code{method} of \code{vegan::vegdist} function.
@@ -138,7 +138,7 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @description
 		#' Differential test of distances among groups.
 		#'
-		#' @param ... parameters passed to \code{cal_group_distance_diff} function of \code{\link{trans_beta}} class.
+		#' @param ... parameters passed to \code{cal_group_distance_diff} function of \code{trans_beta} class in microeco package.
 		#' @return \code{res_group_distance_diff} stored in object.
 		#' @examples
 		#' b1$cal_group_distance_diff(method = "wilcox")
@@ -151,7 +151,7 @@ betaturn <- R6::R6Class(classname = "betaturn",
 		#' @description
 		#' Plot the distance between samples within or between groups.
 		#'
-		#' @param ... parameters passed to \code{plot_group_distance} function of \code{\link{trans_beta}} class.
+		#' @param ... parameters passed to \code{plot_group_distance} function of \code{trans_beta} class in microeco package.
 		#' @return \code{ggplot}.
 		#' @examples
 		#' b1$plot_group_distance()

@@ -64,7 +64,7 @@ b1$plot_group_distance()
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{dataset}}{the object of \code{\link{microtable}} class.}
+\item{\code{dataset}}{the object of \code{microtable} class of microeco package.}
 
 \item{\code{measure}}{default "bray"; beta diversity dissimilarity metric; 
 must be one of \code{c("bray", "jaccard", "wei_unifrac", "unwei_unifrac", "betaMPD", "betaMNTD", "betaNRI", "betaNTI", "ses_UniFrac", "RCbray")}
@@ -165,7 +165,7 @@ Differential test of distances among groups.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{parameters passed to \code{cal_group_distance_diff} function of \code{\link{trans_beta}} class.}
+\item{\code{...}}{parameters passed to \code{cal_group_distance_diff} function of \code{trans_beta} class in microeco package.}
 }
 \if{html}{\out{</div>}}
 }
@@ -193,7 +193,7 @@ Plot the distance between samples within or between groups.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{parameters passed to \code{plot_group_distance} function of \code{\link{trans_beta}} class.}
+\item{\code{...}}{parameters passed to \code{plot_group_distance} function of \code{trans_beta} class in microeco package.}
 }
 \if{html}{\out{</div>}}
 }

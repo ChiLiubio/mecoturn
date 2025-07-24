@@ -7,7 +7,7 @@
 #' @export
 taxaturn <- R6::R6Class(classname = "taxaturn",
 	public = list(
-		#' @param dataset the object of \code{\link{microtable}} class.
+		#' @param dataset the object of \code{microtable} class of microeco package.
 		#' @param taxa_level default "Phylum"; taxonomic rank name, such as "Genus". An integer is also acceptable.
 		#' 	  If the provided taxa_level is not found in \code{taxa_abund} list,
 		#' 	  the function will invoke the \code{cal_abund} function to obtain the relative abudance automatically.

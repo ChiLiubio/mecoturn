@@ -57,7 +57,7 @@ t1$plot()
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{dataset}}{the object of \code{\link{microtable}} class.}
+\item{\code{dataset}}{the object of \code{microtable} class of microeco package.}
 
 \item{\code{taxa_level}}{default "Phylum"; taxonomic rank name, such as "Genus". An integer is also acceptable.
 If the provided taxa_level is not found in \code{taxa_abund} list,
