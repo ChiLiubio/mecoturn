@@ -24,8 +24,7 @@ https://chiliubio.github.io/microeco_tutorial/mecoturn-package.html
 
 ## Citation
 Chi Liu, Jiahui Luo, Chunmiao Lu, Tianlong Sheng, Raymond Jianxiong Zeng, Xiangzhen Li, Minjie Yao.
-mecoturn: An R package for deciphering microbial turnover patterns along gradients. Soil Ecology Letters. 2025.
-
+mecoturn: An R package for deciphering microbial turnover patterns along gradients. Soil Ecology Letters. 2025, 7(4): 250355. https://doi.org/10.1007/s42832-025-0355-6
 
 ## Contributing
 
