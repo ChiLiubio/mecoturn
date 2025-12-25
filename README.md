@@ -26,6 +26,9 @@ https://chiliubio.github.io/microeco_tutorial/mecoturn-package.html
 Chi Liu, Jiahui Luo, Chunmiao Lu, Tianlong Sheng, Raymond Jianxiong Zeng, Xiangzhen Li, Minjie Yao.
 mecoturn: An R package for deciphering microbial turnover patterns along gradients. Soil Ecology Letters. 2025, 7(4): 250355. https://doi.org/10.1007/s42832-025-0355-6
 
+Chi Liu, Na Li, Min Xiao, Xiangzhen Li, Minjie Yao.
+Different assembly mechanisms between prokaryotic and fungal communities in grassland plants and soil. Plant Soil (2024) 505:299–315. https://doi.org/10.1007/s11104-024-06676-w
+
 ## Contributing
 
 We welcome any contribution \! 
