@@ -15,6 +15,11 @@ Install mecoturn package from CRAN.
 install.packages("mecoturn")
 ```
 
+Or install the latest development version from Github.
+
+```r
+devtools::install_github("ChiLiubio/mecoturn")
+```
 
 ## Tutorial
 
