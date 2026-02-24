@@ -448,6 +448,11 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		chang_abund = function(abund_table, group, ordered_group){
 			lapply(unique(abund_table$Taxa), function(x){
 				abund_sub <- abund_table[abund_table$Taxa == x, ]
+				if(nrow(abund_sub) < length(ordered_group)){
+					add_group <- ordered_group[! ordered_group %in% abund_sub[, group]]
+					abund_sub[nrow(abund_sub) + (length(ordered_group) - nrow(abund_sub)), ] <- NA
+					abund_sub[is.na(abund_sub[, group]), group] <- add_group
+				}
 				abund_sub <- abund_sub[match(abund_sub[, group], ordered_group), ]
 				lagged_abund <- diff(abund_sub$Mean, lag = 1)
 				lagged_abund
@@ -455,28 +460,37 @@ taxaturn <- R6::R6Class(classname = "taxaturn",
 		},
 		chang_trend = function(input_abund){
 			lapply(input_abund, function(x){
-				if(all(x < 0)){
-					"Decrease"
+				if(any(is.na(x))){
+					paste0(sapply(x, private$get_symbol), collapse = "|")
 				}else{
-					if(all(x > 0)){
-						"Increase"
+					if(all(x < 0)){
+						"Decrease"
 					}else{
-						paste0(sapply(x, private$get_symbol), collapse = "|")
+						if(all(x > 0)){
+							"Increase"
+						}else{
+							paste0(sapply(x, private$get_symbol), collapse = "|")
+						}
 					}
 				}
 			}) %>% unlist
 		},
 		get_symbol = function(x){
-			if(!is.numeric(x)){
-				stop("The input must be numeric!")
-			}
-			if(x > 0){
-				"+"
+			if(is.na(x)){
+				"NA"
 			}else{
-				if(x < 0){
-					"-"
+				if(x > 0){
+					"+"
 				}else{
-					"0"
+					if(x < 0){
+						"-"
+					}else{
+						if(x == 0){
+							"0"
+						}else{
+							x
+						}
+					}
 				}
 			}
 		}
